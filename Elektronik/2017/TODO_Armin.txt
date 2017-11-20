@@ -63,14 +63,14 @@ X Schema zeichnen
 X Testpunkte bei nicht verwendeten Signalen einfügen.
 X SchmittTrigger, CMOS und TTL Tauglichkeit bei den Eingängen 25, 17, 18 & 7 anschauen.
 X Logiklevel (CMOS / TTL) Unter den Signalen anschauen.
-
-- Josua fragen, wie sein Programm ausprobiert wurde.
 X Zeiten ausrechnen OR-Glied
 X Pull Up & Pull down Widerstände beim OR-Glied?
 X Muss OR-Glied ersetzt werden durch NAND, weil der Chipselect negativ ist?
 X Widerstände für RGB LED ausrechnen, dimensionieren und definieren.
-- Netze benennen.
-- Schema überprüfen lassen
+X Netze benennen.
+
+- Josua fragen, wie sein Programm ausprobiert wurde.
+- Schema und Leiterplatte mit Pflichtenheft und Manual abgleichen lassen.
 - PCB zeichnen
 - Firmware Anforderung schreiben
  - Farbanzeige
