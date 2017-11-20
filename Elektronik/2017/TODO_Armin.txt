@@ -1,0 +1,91 @@
+X Aktuelles Material sichten.
+X TODO Liste erstellen.
+X Git Ordner Elektronik umorganisieren.
+X Inbetriebnahmeablauf erstellen.
+ X Konzeptionel soll so wenig wie möglich am ursprünglichen Projekt geändert werden.
+ X Zellen aufbauen. (Master innen / Master aussen)
+ X Kommunikation CEO - Master
+ X Life LED 1 Sekundentakt
+ X Synchronisation Life LED
+ X Life LED ausschalten
+ X Nummerierung der Zellen
+ X Fehlerfälle beschreiben.
+  X Stromausfall
+  X Was wenn ein Idiot 2 Slaves an einen Slave hängt?
+  X Kommunikationsverlust CEO - Master
+  X Kommunikationsverlust CEO - Master
+  X Kommunikationsverlust innerhalb Slaves
+  X Verlust 5V, 0V, MOSI, MISO, etc.
+  X Was soll geschehen, wenn ein Idiot an einem Slave 2 "Master" Slaves hängt?
+X Pflichtenheft Elektronik schreiben.
+ X Erkennung Gerade angeschlossen, oder Rechts (CLK oder Trigger soll auf separaten Eingang gehen).
+ X Konzeptionel soll so wenig wie möglich am ursprünglichen Projekt geändert werden.
+ X Spirale Master aussen / innen zeichnen.
+ X Kommunikationsübersichtsplan zeichnen.
+ X Frontend Inbetriebnahmetasten CEO zeichnen.
+ X Master hat andere Farbe.
+ X PCB konfigurierbar für Linksdreher machen (L-Förmige aufbauten)
+ X Kommunikationsart CEO - Master (USB, Ethernet, etc?)
+ X Kommunikationsart Slaves & Master - Slaves (SPI?)
+ X Anforderung uP (4 ADC, SDI, Master: USB, 4 DO (RGB & Life LED), etc) 
+ X Anforderung LED (Streifen? auf PCB? Treiber nötig?)
+ X Anforderung Piezo (4 Stück an jeder Ecke)
+ X ADC müssen negative und positive Spannungen vom Piezo auswerten können (OP-Amp?) - Quarz Mittelspannung
+ X Master und Slaves gleiche PCB?
+ X Geometrische Dimension PCB
+ X Programm Assembler
+ X LED Treiber
+ X Soll Master eine Buchse haben?
+ X Anschluss pins zwischen Slaves.
+X Telegram Gruppe gründen.
+X Pflichtenheft und Inbetriebnahmeablauf in Telegram verschicken.
+X Reklamieren, dass git Projekt nicht pushen kann.
+X YAOURT installieren
+X Backup VMWARE
+X Piepston Arch Linux. -> xset b off
+X Arch Linux Bildschirmauflösung -> xrandr -s 1680x1050
+X Libre PCB installieren
+X Im Pflichtenheft hinzufügen, dass USB vertieft sein soll.
+X Auswahl uC
+X IO Liste uC erstellen.
+X Kann man uC als SPI Master funktionieren?
+X Braucht uC externer Quarz für den Clock?
+X IO Liste uC kontrollieren.
+X USB I2C Wandler IO definieren.
+X MCP22221A Reset Eingang
+X LibreOffice Library installieren.
+X OR Glied IO definieren. (74LS4072 / CMOS 4072?)
+X Stecker einfügen (USB, Kommunikation zwischen Slaves (1 OUT, 2 IN)
+X OR-Gate Pad Layout ist in INCHES!!!
+X Auswahl Piezo
+X Auswahl LED
+X Schema zeichnen
+X Testpunkte bei nicht verwendeten Signalen einfügen.
+X SchmittTrigger, CMOS und TTL Tauglichkeit bei den Eingängen 25, 17, 18 & 7 anschauen.
+X Logiklevel (CMOS / TTL) Unter den Signalen anschauen.
+
+- Josua fragen, wie sein Programm ausprobiert wurde.
+X Zeiten ausrechnen OR-Glied
+X Pull Up & Pull down Widerstände beim OR-Glied?
+X Muss OR-Glied ersetzt werden durch NAND, weil der Chipselect negativ ist?
+X Widerstände für RGB LED ausrechnen, dimensionieren und definieren.
+- Netze benennen.
+- Schema überprüfen lassen
+- PCB zeichnen
+- Firmware Anforderung schreiben
+ - Farbanzeige
+ - Erkennung Piezo
+ - Master Umwandlung CEO zu SPI
+ - Kommandos für Slave Kommunikation definieren.
+ - Kommandos für CEO Master Kommunikation definieren.
+- PCB & Material bestellen.
+- In die CH reisen.
+- PCB zusammenbauen & elektrische Inbetriebnahme
+- Kommunikation ENG - uP
+- Life LED laufen lassen
+- LED ansteuern.
+- Piezo Elemente auswerten - Integration (LED Farben wechseln lassen).
+- Slave Kommunikation aufbauen & implementieren.
+- CEO - Master Kommunikation aufbauen & implementieren.
+- Mechanik definieren & bestellen. (Wer? Armin?)
+- Frontend & Backend vom CEO von SW-Leuten (Josua & Raphi?)

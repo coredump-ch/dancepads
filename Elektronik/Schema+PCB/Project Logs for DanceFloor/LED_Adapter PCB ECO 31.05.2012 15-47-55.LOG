@@ -1,4 +1,0 @@
-Added Pin To Net: NetName=NetD1_4 Pin=D1-4
-Added Pin To Net: NetName=NetD1_4 Pin=P1-3
-Added Net: Name=NetD1_4
-Added Member To Class: ClassName=LED_Adapter Member=Component D1 LED 5050
