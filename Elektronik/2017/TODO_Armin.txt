@@ -69,6 +69,9 @@ X Muss OR-Glied ersetzt werden durch NAND, weil der Chipselect negativ ist?
 X Widerstände für RGB LED ausrechnen, dimensionieren und definieren.
 X Netze benennen.
 
+- Bestellen: 
+ - Veroboard
+ - Programmierschnittstelle
 - Josua fragen, wie sein Programm ausprobiert wurde.
 - Schema und Leiterplatte mit Pflichtenheft und Manual abgleichen lassen.
 - PCB zeichnen
