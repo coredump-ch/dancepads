@@ -16,3 +16,9 @@
 *.out
 *.app
 /simulation/proteus/PIC18F24K22/Debug
+
+# Firmware Files
+*.mk
+*.err
+*.hex
+*.lst
