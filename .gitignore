@@ -22,3 +22,15 @@
 *.err
 *.hex
 *.lst
+Makefile
+configurations.xml
+*.bash
+private.xml
+project.xml
+*.p1
+*.pre
+*.d
+*.debug.*
+*.production.*
+memoryfile.xml
+*.properties
