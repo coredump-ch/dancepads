@@ -9,13 +9,17 @@ int b = 0;
 
 void init_rgbled()
 {
-    PORTB = 0x00;
-    LATB = 0x00;
-    TRISB = 0x00;
-    
-    PORTC = 0x00;
-    LATC = 0x00;
-    TRISC = 0x00;
+    PORTBbits.RB5 = 0;
+    LATBbits.LB5 = 0;
+    TRISBbits.RB5 = 0;
+  
+    PORTCbits.RC1 = 0;
+    LATCbits.LC1 = 0;
+    TRISCbits.RC1 = 0;
+  
+    PORTCbits.RC2 = 0;
+    LATCbits.LC2 = 0;
+    TRISCbits.RC2 = 0;
 }
 
 void blink_rgbled()
@@ -30,7 +34,6 @@ void blink_rgbled()
     if (a == 100000)
     {
         PORTCbits.RC1 = ~PORTCbits.RC1;
-        PORTBbits.RB5 = ~PORTBbits.RB5;
     }
     
     if (a == 200000)

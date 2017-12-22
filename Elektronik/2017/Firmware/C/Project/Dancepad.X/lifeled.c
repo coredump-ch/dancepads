@@ -8,15 +8,15 @@ long i = 0;
 
 void init_lifeled()
 {
-    PORTA = 0x00;
-    LATA = 0x00;
-    TRISA = 0x00;
+    PORTAbits.RA4 = 0;
+    LATAbits.LA4 = 0;
+    TRISAbits.RA4 = 0;
 }
 
 void blink_lifeled()
 {
     i++;
-    if (i == 500000)
+    if (i == 211000)
     {
         PORTAbits.RA4 = ~PORTAbits.RA4;
         i = 0;

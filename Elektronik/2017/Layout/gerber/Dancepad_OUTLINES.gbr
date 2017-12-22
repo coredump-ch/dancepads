@@ -1,0 +1,23 @@
+G04 --- HEADER BEGIN --- *
+%TF.GenerationSoftware,LibrePCB,LibrePCB,0.1.0*%
+%TF.CreationDate,2017-11-17T17:15:03*%
+%TF.ProjectId,Dancepad - Dancepad,5234ce1f-a5e1-4fe4-82c5-c527dd5c2ef1,v1*%
+%TF.Part,Single*%
+%FSLAX66Y66*%
+%MOMM*%
+G01*
+G74*
+G04 --- HEADER END --- *
+G04 --- APERTURE LIST BEGIN --- *
+%ADD10C,0.001*%
+G04 --- APERTURE LIST END --- *
+G04 --- BOARD BEGIN --- *
+D10*
+X0Y0D02*
+X80000000Y0D01*
+X80000000Y80000000D01*
+X0Y80000000D01*
+X0Y0D01*
+G04 --- BOARD END --- *
+%TF.MD5,14e32ce68f0175a76ece468a6a381fab*%
+M02*
