@@ -12,22 +12,28 @@
 #include "init.h"
 #include "lifeled.h"
 #include "rgbled.h"
+#include "piezo.h"
 
 void main(void) {
     int red = 0;
     int green = 0;
     int blue = 0;
-    int color = 0;
+//    int color = 0;
     
     init_oscillator();
     init_lifeled();
     init_rgbled();
+    init_piezo();
     
     while(1)
     {
         blink_lifeled();
+        red = adc_convert(3);
+        green = adc_convert(2);
+        blue = adc_convert(0);
+        blue = read_piezo();
         set_rgbled(red, green, blue);
-        __delay_ms(1);
+/*        __delay_ms(1);
         switch (color){
             case 0:
             {
@@ -88,6 +94,6 @@ void main(void) {
                 color = 0;
             }
             break;
-        }
+        }*/
     }
  }
