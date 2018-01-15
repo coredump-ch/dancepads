@@ -6,21 +6,88 @@
  */
 
 #define _XTAL_FREQ  64000000
-#include <P18F23K22.h>
+#include <p18f23k22.h>
 #include <xc.h>
+#include <plib.h>
 #include "init.h"
 #include "lifeled.h"
 #include "rgbled.h"
 
 void main(void) {
-
+    int red = 0;
+    int green = 0;
+    int blue = 0;
+    int color = 0;
+    
     init_oscillator();
     init_lifeled();
     init_rgbled();
     
     while(1)
     {
-       blink_lifeled();
-       blink_rgbled();
+        blink_lifeled();
+        set_rgbled(red, green, blue);
+        __delay_ms(1);
+        switch (color){
+            case 0:
+            {
+                red++;
+                if (red >= 1000)
+                {
+                    color = 1;
+                }
+            }
+            break;
+            case 1:
+            {
+                green++;
+                if (green >= 1000)
+                {
+                    color = 2;
+                }
+            }
+            break;
+            case 2:
+            {
+                blue++;
+                if (blue >= 1000)
+                {
+                    color = 3;
+                }
+            }
+            break;
+            case 3:
+            {
+                red--;
+                if (red <= 0)
+                {
+                    color = 4;
+                }
+            }
+            break;
+            case 4:
+            {
+                green--;
+                if (green <= 0)
+                {
+                    color = 5;
+                }
+            }
+            break;
+            case 5:
+            {
+                blue--;
+                if (blue <= 0)
+                {
+                    color = 0;
+                }
+            }
+            break;
+            default:
+            {
+                color = 0;
+            }
+            break;
+        }
     }
  }

@@ -1,4 +1,4 @@
-#include <P18F23K22.h>
+#include <p18f23k22.h>
 
 
 void init_oscillator()

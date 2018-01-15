@@ -1,5 +1,5 @@
 #define _XTAL_FREQ  64000000
-#include <P18F23K22.h>
+#include <p18f23k22.h>
 #include <xc.h>
 #include "init.h"
 #include "lifeled.h"
@@ -16,7 +16,7 @@ void init_lifeled()
 void blink_lifeled()
 {
     i++;
-    if (i == 211000)
+    if (i == 1000)
     {
         PORTAbits.RA4 = ~PORTAbits.RA4;
         i = 0;
