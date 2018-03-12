@@ -8,7 +8,8 @@
 #ifndef HSI_RGB_H
 #define	HSI_RGB_H
 
-int * hsi_rgb(int h); // convert hsv value to rgb
+//Convert hsi value to rgb
+int * hsi_rgb(int h);
 
-#endif	/* HSV_RGB_H */
+#endif
 

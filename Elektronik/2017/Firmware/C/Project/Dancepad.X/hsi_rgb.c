@@ -1,18 +1,18 @@
-#define _XTAL_FREQ  64000000
-#include <p18f23k22.h>
+/* 
+ * File:   hsirgb.c
+ * Author: astoc
+ *
+ * Created on 30. Januar 2018, 20:58
+ */
+
 #include <xc.h>
-#include <math.h>
-#include "init.h"
-#include "hsi_rgb.h"
 
 int * hsi_rgb(int h)
 {
-    int temp = 0;
     int r, g, b = 0;
-    int rgb[3];
+    static int rgb[3];
     
-   // h = h * 3 / 2;
-    
+    //Calculate RGB hexagon
     if(h < 255)
     {
         r = 255;
@@ -70,40 +70,11 @@ int * hsi_rgb(int h)
             }
         }
     }
-        
-/*    if (h%512 <= 170)
-    {
-        r = 255;
-        g = 0;
-        b = h%512*3/2;
-    }
-    else if (h%512 <= 341)      
-    {
-        r = 255-h%512*3/2;
-        g = 0;
-        b = 255;
-    }
-    else   
-    {
-        r = 0;
-        g = h%512*3/2;
-        b = 255;
-    }    
     
-    if (h > 512)
-    {
-        r = 255 - r;
-        g = 255 - g;
-        b = 255 - b;
-    }
-    
-    r = 4*r;
-    g = 4*g;
-    b = 4*b;*/
-    
+    //Return colors
     rgb[0] = r;
     rgb[1] = g;
     rgb[2] = b;
     
-    return &rgb;
+    return rgb;
 }
