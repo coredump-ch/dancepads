@@ -13,12 +13,16 @@
 #include "lifeled.h"
 #include "rgbled.h"
 #include "piezo.h"
+#include "hsi_rgb.h"
 
 void main(void) {
-    int red = 0;
-    int green = 0;
-    int blue = 0;
-//    int color = 0;
+//    int red = 500;
+//    int green = 0;
+//    int blue = 0;
+    unsigned int touch = 0;
+//   unsigned int touch_old = 0;
+//    int a = 0;
+    int* color = 0;
     
     init_oscillator();
     init_lifeled();
@@ -28,11 +32,23 @@ void main(void) {
     while(1)
     {
         blink_lifeled();
-        red = adc_convert(3);
-        green = adc_convert(2);
-        blue = adc_convert(0);
-        blue = read_piezo();
-        set_rgbled(red, green, blue);
+        touch = read_piezo();
+/*       __delay_ms(1);
+        touch ++;
+        if (touch == 1536)
+        {
+            touch = 0;
+        }
+        /*       if (touch != touch_old)
+        {
+            a = red;
+            red = green;
+            green = a;
+        }
+        blue = touch;*/
+        color = hsi_rgb(touch);
+        set_rgbled(color[0], color[1], color[2]);
+ //       set_rgbled(10*touch, 100*touch, 50*touch);
 /*        __delay_ms(1);
         switch (color){
             case 0:

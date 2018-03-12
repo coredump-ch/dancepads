@@ -36,7 +36,7 @@ unsigned int adc_convert(unsigned char ch)
     while(ADCON0bits.GODONE); //wait for the conversion to finish
     ADCON0bits.ADON = 0; // Set ADC off
 
-    if(ADRES<10) return 0;
+    if(ADRES<7) return 0;
     
     return ADRES;
 }
@@ -52,5 +52,9 @@ unsigned int read_piezo()
     piezo3 = adc_convert(3);
     
     piezo_tot = piezo_tot + piezo0 - piezo1 + piezo2 - piezo3;
+    if (piezo_tot > 1536)
+    {
+        piezo_tot = 0;
+    }
     return piezo_tot;
 }
