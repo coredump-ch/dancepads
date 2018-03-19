@@ -9,7 +9,10 @@
 #define _XTAL_FREQ  64000000
 #include <p18f23k22.h>
 #include <xc.h>
+#include <stdio.h>
 #include <plib.h>
+#include <usart.h>
+#include <spi.h>
 #include "init.h"
 #include "lifeled.h"
 #include "rgbled.h"
