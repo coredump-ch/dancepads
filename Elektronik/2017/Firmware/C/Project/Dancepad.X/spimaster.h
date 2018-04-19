@@ -11,5 +11,20 @@
 //Init SPI master subroutine
 void init_spimaster();
 
+//Init SPI slave subroutine
+void init_spislave();
+
+//Send SPI master subroutine
+void send_spimaster(unsigned char data);
+
+//Send SPI master subroutine
+void rec_spimaster();
+
+//Send SPI master subroutine
+void send_spislave();
+
+//Send SPI master subroutine
+unsigned int rec_spislave();
+
 #endif
 

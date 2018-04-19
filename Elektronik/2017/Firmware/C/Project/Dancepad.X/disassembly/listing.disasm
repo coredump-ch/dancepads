@@ -1,0 +1,2709 @@
+Disassembly Listing for Dancepad
+Generated From:
+D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/dist/default/debug/Dancepad.X.debug.elf
+18.04.2018 16:14:19
+
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/spimaster.c
+1:             /* 
+2:              * File:   spimaster.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 19. March 2018, 23:06
+6:              */
+7:             
+8:             #include <xc.h>
+9:             
+10:            void init_spimaster()
+11:            {
+12:                // Set TRIS bits of SPI master
+13:                TRISBbits.RB0 = 0;      // !SS2
+072E  9093     BCF TRISB, 0, ACCESS
+14:                TRISBbits.RB1 = 0;      // SCK2
+0730  9293     BCF TRISB, 1, ACCESS
+15:                TRISBbits.RB2 = 1;      // SDI2
+0732  8493     BSF TRISB, 2, ACCESS
+16:                TRISBbits.RB3 = 0;      // SDO2
+0734  9693     BCF TRISB, 3, ACCESS
+17:                
+18:                // Disable Chipselect
+19:                PORTBbits.RB0 = 1;
+0736  8081     BSF PORTB, 0, ACCESS
+20:                
+21:                // Set up SPI
+22:                SSP2STAT = 0x40;
+0738  0E40     MOVLW 0x40
+073A  6E6D     MOVWF SSP2STAT, ACCESS
+23:                SSP2CON1 = 0x20;
+073C  0E20     MOVLW 0x20
+073E  6E6C     MOVWF SSP2CON1, ACCESS
+24:            }
+0740  0012     RETURN 0
+25:            
+26:            void init_spislave()
+27:            {
+28:                // Set TRIS bits of SPI slave
+29:                TRISAbits.RA5 = 1;      // !SS1
+0716  8A92     BSF TRISA, 5, ACCESS
+30:                TRISCbits.RC3 = 1;      // SCK1
+0718  8694     BSF TRISC, 3, ACCESS
+31:                TRISCbits.RC4 = 1;      // SDI1
+071A  8894     BSF TRISC, 4, ACCESS
+32:                TRISCbits.RC5 = 0;      // SDO1
+071C  9A94     BCF TRISC, 5, ACCESS
+33:                    
+34:                
+35:                PORTAbits.RA5 = 0;
+071E  9A80     BCF PORTA, 5, ACCESS
+36:                LATAbits.LA5 = 0;
+0720  9A89     BCF LATA, 5, ACCESS
+37:                TRISAbits.RA5 = 1;
+0722  8A92     BSF TRISA, 5, ACCESS
+38:                
+39:                
+40:                // Set up SPI
+41:                SSP1STAT = 0x40;
+0724  0E40     MOVLW 0x40
+0726  6EC7     MOVWF SSP1STAT, ACCESS
+42:                SSP1CON1 = 0x24;
+0728  0E24     MOVLW 0x24
+072A  6EC6     MOVWF SSP1CON1, ACCESS
+43:            }
+072C  0012     RETURN 0
+44:            
+45:            void send_spimaster(unsigned int data)
+46:            {
+47:                // Reset Interruption flag
+48:                SSP2IF = 0;
+0754  9EA4     BCF PIR3, 7, ACCESS
+49:            
+50:                // Enable Chipselect
+51:                PORTBbits.RB0 = 0;   
+0756  9081     BCF PORTB, 0, ACCESS
+52:            
+53:                // Start Data transmission
+54:                SSP2BUF = data;
+0758  C001     MOVFF __pcstackCOMRAM, SSP2BUF
+075A  FF6F     NOP
+55:            
+56:                // Wait for Data Transmit/Receipt complete
+57:                while(!SSP2IF);
+075C  AEA4     BTFSS PIR3, 7, ACCESS
+075E  D7FE     BRA 0x75C
+58:            
+59:                // Enable Chipselect
+60:                PORTBbits.RB0 = 1;
+0760  8081     BSF PORTB, 0, ACCESS
+61:            
+62:            }
+0762  0012     RETURN 0
+63:            
+64:            void rec_spimaster()
+65:            {
+66:                
+67:            }
+68:            
+69:            void send_spislave()
+70:            {
+71:                
+72:            }
+73:            
+74:            unsigned int rec_spislave()
+75:            {
+76:                if(PORTAbits.RA5)
+06C0  AA80     BTFSS PORTA, 5, ACCESS
+06C2  D009     BRA 0x6D6
+77:                {
+78:                    // Reset Interruption flag
+79:                    SSP1IF = 0;
+06C4  969E     BCF PIR1, 3, ACCESS
+80:                    
+81:                    // Send Dummy transmission for reading the data
+82:                    SSP1BUF = 0;
+06C6  0E00     MOVLW 0x0
+06C8  6EC9     MOVWF SSP1BUF, ACCESS
+83:            
+84:                    // Wait for Data Transmit/Receipt complete
+85:                    while(!SSP1IF);  
+06CA  A69E     BTFSS PIR1, 3, ACCESS
+06CC  D7FE     BRA 0x6CA
+86:            
+87:                    return(SSP1BUF);
+06CE  CFC9     MOVFF SSP1BUF, __pcstackCOMRAM
+06D0  F001     NOP
+06D2  6A02     CLRF 0x2, ACCESS
+88:                }
+06D4  0012     RETURN 0
+89:                else
+90:                {
+91:                    return(0);
+06D6  0E00     MOVLW 0x0
+06D8  6E02     MOVWF 0x2, ACCESS
+06DA  0E00     MOVLW 0x0
+06DC  6E01     MOVWF __pcstackCOMRAM, ACCESS
+06DE  0012     RETURN 0
+92:                }
+93:            }
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/rgbled.c
+1:             /* 
+2:              * File:   rgbled.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 12. Dezember 2017, 15:26
+6:              */
+7:             
+8:             #include <xc.h>
+9:             
+10:            void init_rgbled()
+11:            {
+12:                //Set TRIS bits of RGB outputs
+13:                TRISCbits.RC1 = 1;
+0664  8294     BSF TRISC, 1, ACCESS
+14:                TRISCbits.RC2 = 1;
+0666  8494     BSF TRISC, 2, ACCESS
+15:                TRISBbits.RB5 = 1;
+0668  8A93     BSF TRISB, 5, ACCESS
+16:                
+17:                //Select timer resources, Timer2 all PWM and load with PWM period value
+18:                CCPTMRS0 = 0x00;
+066A  0E00     MOVLW 0x0
+066C  010F     MOVLB 0xF
+066E  6F49     MOVWF 0x49, BANKED
+19:                PR2 = 0xff;
+0670  68BB     SETF PR2, ACCESS
+20:                
+21:                //Set up PWM mode for RC1
+22:                CCP1CON = 0b00001100; 
+0672  0E0C     MOVLW 0xC
+0674  6EBD     MOVWF CCP1CON, ACCESS
+23:                CCPR1L = 0x00;
+0676  0E00     MOVLW 0x0
+0678  6EBE     MOVWF CCPR1, ACCESS
+24:            
+25:                //Set up PWM mode for RC2
+26:                CCP2CON = 0b00001100;
+067A  0E0C     MOVLW 0xC
+067C  6E66     MOVWF CCP2CON, ACCESS
+27:                CCPR2L = 0x00;
+067E  0E00     MOVLW 0x0
+0680  6E67     MOVWF CCPR2, ACCESS
+28:                
+29:                //Set up PWM mode for RB5
+30:                CCP3CON = 0b00001100;
+0682  0E0C     MOVLW 0xC
+0684  6F5D     MOVWF 0x5D, BANKED
+31:                CCPR3L = 0x00;
+0686  0E00     MOVLW 0x0
+0688  6F5E     MOVWF 0x5E, BANKED
+32:                
+33:                //Set Timer 2 On, 1:1 Post, 4x prescale
+34:                T2CON = 0b00000101;   
+068A  0E05     MOVLW 0x5
+068C  6EBA     MOVWF T2CON, ACCESS
+35:                
+36:                //Clear TRIS bits of RGB outputs
+37:                TRISCbits.RC1 = 0; 
+068E  9294     BCF TRISC, 1, ACCESS
+38:                TRISCbits.RC2 = 0;
+0690  9494     BCF TRISC, 2, ACCESS
+39:                TRISBbits.RB5 = 0;
+0692  9A93     BCF TRISB, 5, ACCESS
+40:            }
+0694  0012     RETURN 0
+41:            
+42:            void set_rgbled(int r, int g, int b)
+43:            {
+44:                //Set red LED PWM
+45:                int brightness = r;
+0362  C001     MOVFF __pcstackCOMRAM, brightness
+0364  F009     NOP
+0366  C002     MOVFF 0x2, piezo1
+0368  F00A     NOP
+46:                CCP2CONbits.DC2B0 = (unsigned int) brightness & 1; 
+036A  C009     MOVFF brightness, g
+036C  F007     NOP
+036E  0E01     MOVLW 0x1
+0370  1607     ANDWF g, F, ACCESS
+0372  3A07     SWAPF g, F, ACCESS
+0374  5066     MOVF CCP2CON, W, ACCESS
+0376  1807     XORWF g, W, ACCESS
+0378  0BEF     ANDLW 0xEF
+037A  1807     XORWF g, W, ACCESS
+037C  6E66     MOVWF CCP2CON, ACCESS
+47:                CCP2CONbits.DC2B1 = (unsigned int) (brightness >> 1) & 1; 
+037E  340A     RLCF piezo1, W, ACCESS
+0380  300A     RRCF piezo1, W, ACCESS
+0382  6E08     MOVWF piezo0, ACCESS
+0384  3009     RRCF brightness, W, ACCESS
+0386  6E07     MOVWF g, ACCESS
+0388  0E01     MOVLW 0x1
+038A  1607     ANDWF g, F, ACCESS
+038C  3A07     SWAPF g, F, ACCESS
+038E  4607     RLNCF g, F, ACCESS
+0390  5066     MOVF CCP2CON, W, ACCESS
+0392  1807     XORWF g, W, ACCESS
+0394  0BDF     ANDLW 0xDF
+0396  1807     XORWF g, W, ACCESS
+0398  6E66     MOVWF CCP2CON, ACCESS
+48:                CCPR2L = (unsigned int) (brightness >> 2);
+039A  C009     MOVFF brightness, g
+039C  F007     NOP
+039E  C00A     MOVFF piezo1, piezo0
+03A0  F008     NOP
+03A2  3408     RLCF piezo0, W, ACCESS
+03A4  3208     RRCF piezo0, F, ACCESS
+03A6  3207     RRCF g, F, ACCESS
+03A8  3408     RLCF piezo0, W, ACCESS
+03AA  3208     RRCF piezo0, F, ACCESS
+03AC  3207     RRCF g, F, ACCESS
+03AE  5007     MOVF g, W, ACCESS
+03B0  6E67     MOVWF CCPR2, ACCESS
+49:                
+50:                //Set green LED PWM
+51:                int brightness = g;
+03B2  C003     MOVFF ap, brightness
+03B4  F009     NOP
+03B6  C004     MOVFF 0x4, piezo1
+03B8  F00A     NOP
+52:                CCP3CONbits.DC3B0 = (unsigned int) brightness & 1;
+03BA  C009     MOVFF brightness, g
+03BC  F007     NOP
+03BE  0E01     MOVLW 0x1
+03C0  1607     ANDWF g, F, ACCESS
+03C2  3A07     SWAPF g, F, ACCESS
+03C4  010F     MOVLB 0xF
+03C6  515D     MOVF 0x5D, W, BANKED
+03C8  1807     XORWF g, W, ACCESS
+03CA  0BEF     ANDLW 0xEF
+03CC  1807     XORWF g, W, ACCESS
+03CE  6F5D     MOVWF 0x5D, BANKED
+53:                CCP3CONbits.DC3B1 = (unsigned int) (brightness >> 1) & 1; 
+03D0  340A     RLCF piezo1, W, ACCESS
+03D2  300A     RRCF piezo1, W, ACCESS
+03D4  6E08     MOVWF piezo0, ACCESS
+03D6  3009     RRCF brightness, W, ACCESS
+03D8  6E07     MOVWF g, ACCESS
+03DA  0E01     MOVLW 0x1
+03DC  1607     ANDWF g, F, ACCESS
+03DE  3A07     SWAPF g, F, ACCESS
+03E0  4607     RLNCF g, F, ACCESS
+03E2  515D     MOVF 0x5D, W, BANKED
+03E4  1807     XORWF g, W, ACCESS
+03E6  0BDF     ANDLW 0xDF
+03E8  1807     XORWF g, W, ACCESS
+03EA  6F5D     MOVWF 0x5D, BANKED
+54:                CCPR3L = (unsigned int) (brightness >> 2);      
+03EC  C009     MOVFF brightness, g
+03EE  F007     NOP
+03F0  C00A     MOVFF piezo1, piezo0
+03F2  F008     NOP
+03F4  3408     RLCF piezo0, W, ACCESS
+03F6  3208     RRCF piezo0, F, ACCESS
+03F8  3207     RRCF g, F, ACCESS
+03FA  3408     RLCF piezo0, W, ACCESS
+03FC  3208     RRCF piezo0, F, ACCESS
+03FE  3207     RRCF g, F, ACCESS
+0400  5007     MOVF g, W, ACCESS
+0402  6F5E     MOVWF 0x5E, BANKED
+55:                
+56:                //Set blue LED PWM
+57:                int brightness = b;
+0404  C005     MOVFF c, brightness
+0406  F009     NOP
+0408  C006     MOVFF 0x6, piezo1
+040A  F00A     NOP
+58:                CCP1CONbits.DC1B0 = (unsigned int) brightness & 1; 
+040C  C009     MOVFF brightness, g
+040E  F007     NOP
+0410  0E01     MOVLW 0x1
+0412  1607     ANDWF g, F, ACCESS
+0414  3A07     SWAPF g, F, ACCESS
+0416  50BD     MOVF CCP1CON, W, ACCESS
+0418  1807     XORWF g, W, ACCESS
+041A  0BEF     ANDLW 0xEF
+041C  1807     XORWF g, W, ACCESS
+041E  6EBD     MOVWF CCP1CON, ACCESS
+59:                CCP1CONbits.DC1B1 = (unsigned int) (brightness >> 1) & 1; 
+0420  340A     RLCF piezo1, W, ACCESS
+0422  300A     RRCF piezo1, W, ACCESS
+0424  6E08     MOVWF piezo0, ACCESS
+0426  3009     RRCF brightness, W, ACCESS
+0428  6E07     MOVWF g, ACCESS
+042A  0E01     MOVLW 0x1
+042C  1607     ANDWF g, F, ACCESS
+042E  3A07     SWAPF g, F, ACCESS
+0430  4607     RLNCF g, F, ACCESS
+0432  50BD     MOVF CCP1CON, W, ACCESS
+0434  1807     XORWF g, W, ACCESS
+0436  0BDF     ANDLW 0xDF
+0438  1807     XORWF g, W, ACCESS
+043A  6EBD     MOVWF CCP1CON, ACCESS
+60:                CCPR1L = (unsigned int) (brightness >> 2); 
+043C  C009     MOVFF brightness, g
+043E  F007     NOP
+0440  C00A     MOVFF piezo1, piezo0
+0442  F008     NOP
+0444  3408     RLCF piezo0, W, ACCESS
+0446  3208     RRCF piezo0, F, ACCESS
+0448  3207     RRCF g, F, ACCESS
+044A  3408     RLCF piezo0, W, ACCESS
+044C  3208     RRCF piezo0, F, ACCESS
+044E  3207     RRCF g, F, ACCESS
+0450  5007     MOVF g, W, ACCESS
+0452  6EBE     MOVWF CCPR1, ACCESS
+61:            }
+0454  0012     RETURN 0
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/piezo.c
+1:             /* 
+2:              * File:   piezo.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 12. Dezember 2017, 15:26
+6:              */
+7:             
+8:             #include <xc.h>
+9:             
+10:            void init_piezo()
+11:            {    
+12:                //Set to internal clock and 8 TAD
+13:                ADCON2 = 0xA7;
+06E0  0EA7     MOVLW 0xA7
+06E2  6EC0     MOVWF ADCON2, ACCESS
+14:                
+15:                //Set reference voltage to supply voltage
+16:                ADCON1 = 0x00;
+06E4  0E00     MOVLW 0x0
+06E6  6EC1     MOVWF ADCON1, ACCESS
+17:                
+18:                //Set ADC as inputs
+19:                TRISAbits.RA0 = 0;
+06E8  9092     BCF TRISA, 0, ACCESS
+20:                ANSELAbits.ANSA0 = 0;
+06EA  010F     MOVLB 0xF
+06EC  9138     BCF 0x38, 0, BANKED
+21:                
+22:                //Set ADC as inputs
+23:                TRISAbits.RA1 = 0;
+06EE  9292     BCF TRISA, 1, ACCESS
+24:                ANSELAbits.ANSA1 = 0;
+06F0  9338     BCF 0x38, 1, BANKED
+25:                
+26:                //Set ADC as inputs
+27:                TRISAbits.RA2 = 0;
+06F2  9492     BCF TRISA, 2, ACCESS
+28:                ANSELAbits.ANSA2 = 0;
+06F4  9538     BCF 0x38, 2, BANKED
+29:                
+30:                //Set ADC as inputs
+31:                TRISAbits.RA3 = 0;
+06F6  9692     BCF TRISA, 3, ACCESS
+32:                ANSELAbits.ANSA3 = 0;
+06F8  9738     BCF 0x38, 3, BANKED
+33:            }
+06FA  0012     RETURN 0
+34:            
+35:            unsigned int adc_convert(unsigned char ch)
+061C  6E03     MOVWF ap, ACCESS
+36:            {
+37:                //Check invalid Channel
+38:                if(ch>4) return 0;
+061E  0E04     MOVLW 0x4
+0620  6403     CPFSGT ap, ACCESS
+0622  D005     BRA 0x62E
+0624  0E00     MOVLW 0x0
+0626  6E02     MOVWF 0x2, ACCESS
+0628  0E00     MOVLW 0x0
+062A  6E01     MOVWF __pcstackCOMRAM, ACCESS
+062C  0012     RETURN 0
+39:                
+40:                //Select ADC Channel
+41:                ADCON0=0x00;
+062E  0E00     MOVLW 0x0
+0630  6EC2     MOVWF ADCON0, ACCESS
+42:                ADCON0=(unsigned int)(ch<<2);
+0632  4403     RLNCF ap, W, ACCESS
+0634  46E8     RLNCF WREG, F, ACCESS
+0636  0BFC     ANDLW 0xFC
+0638  6EC2     MOVWF ADCON0, ACCESS
+43:                
+44:                //Set ADC on
+45:                ADCON0bits.ADON = 1;
+063A  80C2     BSF ADCON0, 0, ACCESS
+46:                
+47:                //Start conversion
+48:                ADCON0bits.GODONE =1;
+063C  82C2     BSF ADCON0, 1, ACCESS
+49:                
+50:                //Wait for conversion to finish
+51:                while(ADCON0bits.GODONE);
+063E  B2C2     BTFSC ADCON0, 1, ACCESS
+0640  D7FE     BRA 0x63E
+52:                
+53:                //Set ADC off
+54:                ADCON0bits.ADON = 0;
+0642  90C2     BCF ADCON0, 0, ACCESS
+55:            
+56:                if(ADRES<7) return 0;
+0644  50C4     MOVF ADRESH, W, ACCESS
+0646  E109     BNZ 0x65A
+0648  0E07     MOVLW 0x7
+064A  5CC3     SUBWF ADRES, W, ACCESS
+064C  B0D8     BTFSC STATUS, 0, ACCESS
+064E  D005     BRA 0x65A
+0650  0E00     MOVLW 0x0
+0652  6E02     MOVWF 0x2, ACCESS
+0654  0E00     MOVLW 0x0
+0656  6E01     MOVWF __pcstackCOMRAM, ACCESS
+0658  0012     RETURN 0
+57:                
+58:                return ADRES;
+065A  CFC3     MOVFF ADRES, __pcstackCOMRAM
+065C  F001     NOP
+065E  CFC4     MOVFF ADRESH, 0x2
+0660  F002     NOP
+59:            }
+0662  0012     RETURN 0
+60:            
+61:            unsigned int read_piezo()
+62:            {
+63:                unsigned int piezo0, piezo1, piezo2, piezo3;
+64:                static unsigned int piezo_tot = 0;
+65:                
+66:                //Read ADC values
+67:                piezo0 = adc_convert(0);
+0598  0E00     MOVLW 0x0
+059A  EC0E     CALL 0x61C, 0
+059C  F003     NOP
+059E  C001     MOVFF __pcstackCOMRAM, piezo0
+05A0  F008     NOP
+05A2  C002     MOVFF 0x2, brightness
+05A4  F009     NOP
+68:                piezo1 = adc_convert(1);
+05A6  0E01     MOVLW 0x1
+05A8  EC0E     CALL 0x61C, 0
+05AA  F003     NOP
+05AC  C001     MOVFF __pcstackCOMRAM, piezo1
+05AE  F00A     NOP
+05B0  C002     MOVFF 0x2, 0xB
+05B2  F00B     NOP
+69:                piezo2 = adc_convert(2);
+05B4  0E02     MOVLW 0x2
+05B6  EC0E     CALL 0x61C, 0
+05B8  F003     NOP
+05BA  C001     MOVFF __pcstackCOMRAM, piezo2
+05BC  F00C     NOP
+05BE  C002     MOVFF 0x2, 0xD
+05C0  F00D     NOP
+70:                piezo3 = adc_convert(3);
+05C2  0E03     MOVLW 0x3
+05C4  EC0E     CALL 0x61C, 0
+05C6  F003     NOP
+05C8  C001     MOVFF __pcstackCOMRAM, piezo3
+05CA  F00E     NOP
+05CC  C002     MOVFF 0x2, 0xF
+05CE  F00F     NOP
+71:                
+72:                //Integrate ADC values
+73:                piezo_tot = piezo_tot + piezo0 - piezo1 + piezo2 - piezo3;
+05D0  500E     MOVF piezo3, W, ACCESS
+05D2  240A     ADDWF piezo1, W, ACCESS
+05D4  6E06     MOVWF 0x6, ACCESS
+05D6  500F     MOVF 0xF, W, ACCESS
+05D8  200B     ADDWFC 0xB, W, ACCESS
+05DA  6E07     MOVWF g, ACCESS
+05DC  1E06     COMF 0x6, F, ACCESS
+05DE  1E07     COMF g, F, ACCESS
+05E0  4A06     INFSNZ 0x6, F, ACCESS
+05E2  2A07     INCF g, F, ACCESS
+05E4  5014     MOVF __pbssCOMRAM, W, ACCESS
+05E6  2606     ADDWF 0x6, F, ACCESS
+05E8  5015     MOVF 0x15, W, ACCESS
+05EA  2207     ADDWFC g, F, ACCESS
+05EC  5008     MOVF piezo0, W, ACCESS
+05EE  2606     ADDWF 0x6, F, ACCESS
+05F0  5009     MOVF brightness, W, ACCESS
+05F2  2207     ADDWFC g, F, ACCESS
+05F4  500C     MOVF piezo2, W, ACCESS
+05F6  2406     ADDWF 0x6, W, ACCESS
+05F8  6E14     MOVWF __pbssCOMRAM, ACCESS
+05FA  500D     MOVF 0xD, W, ACCESS
+05FC  2007     ADDWFC g, W, ACCESS
+05FE  6E15     MOVWF 0x15, ACCESS
+74:                if (piezo_tot > 1536)
+0600  0414     DECF __pbssCOMRAM, W, ACCESS
+0602  0E06     MOVLW 0x6
+0604  5815     SUBWFB 0x15, W, ACCESS
+0606  A0D8     BTFSS STATUS, 0, ACCESS
+0608  D004     BRA 0x612
+75:                {
+76:                    piezo_tot = 0;
+060A  0E00     MOVLW 0x0
+060C  6E15     MOVWF 0x15, ACCESS
+060E  0E00     MOVLW 0x0
+0610  6E14     MOVWF __pbssCOMRAM, ACCESS
+77:                }
+78:                return piezo_tot;
+0612  C014     MOVFF __pbssCOMRAM, 0x4
+0614  F004     NOP
+0616  C015     MOVFF 0x15, c
+0618  F005     NOP
+061A  0012     RETURN 0
+79:            }
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/main.c
+1:             /* 
+2:              * File:   main.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 12. Dezember 2017, 15:26
+6:              */
+7:             
+8:             //Includes
+9:             #define _XTAL_FREQ  64000000
+10:            #include <p18f23k22.h>
+11:            #include <xc.h>
+12:            #include <stdio.h>
+13:            #include <plib.h>
+14:            #include <usart.h>
+15:            #include <spi.h>
+16:            #include "init.h"
+17:            #include "lifeled.h"
+18:            #include "rgbled.h"
+19:            #include "piezo.h"
+20:            #include "hsi_rgb.h"
+21:            #include "spimaster.h"
+22:            #include <xc.h>
+23:            
+24:            void main(void) {
+25:                unsigned int touch = 0;
+0502  0E00     MOVLW 0x0
+0504  6E11     MOVWF 0x11, ACCESS
+0506  0E00     MOVLW 0x0
+0508  6E10     MOVWF touch, ACCESS
+26:                int* color = 0;
+050A  0E00     MOVLW 0x0
+050C  6E12     MOVWF color, ACCESS
+050E  0E00     MOVLW 0x0
+0510  6E13     MOVWF 0x13, ACCESS
+27:                
+28:                //Initialize Dancepad
+29:                init_oscillator();
+0512  ECA1     CALL 0x742, 0
+0514  F003     NOP
+30:                init_lifeled();
+0516  ECB2     CALL 0x764, 0
+0518  F003     NOP
+31:                init_rgbled();
+051A  EC32     CALL 0x664, 0
+051C  F003     NOP
+32:                init_piezo();
+051E  EC70     CALL 0x6E0, 0
+0520  F003     NOP
+33:                init_spislave();
+0522  EC8B     CALL 0x716, 0
+0524  F003     NOP
+34:                init_spimaster();
+0526  EC97     CALL 0x72E, 0
+0528  F003     NOP
+35:                
+36:                //Infinite loop of the programm
+37:                while(1)
+0596  D7C9     BRA 0x52A
+38:                {
+39:            //        blink_lifeled();
+40:                    blink_spiled();
+052A  EC2B     CALL 0x456, 0
+052C  F002     NOP
+41:                    touch = read_piezo();
+052E  ECCC     CALL 0x598, 0
+0530  F002     NOP
+0532  C004     MOVFF 0x4, touch
+0534  F010     NOP
+0536  C005     MOVFF c, 0x11
+0538  F011     NOP
+42:            /*       __delay_ms(1);
+43:                    touch ++;
+44:                    if (touch == 1536)
+45:                    {
+46:                        touch = 0;
+47:                    }*/
+48:                    color = hsi_rgb(touch);
+053A  C010     MOVFF touch, __pcstackCOMRAM
+053C  F001     NOP
+053E  C011     MOVFF 0x11, 0x2
+0540  F002     NOP
+0542  EC07     CALL 0x20E, 0
+0544  F001     NOP
+0546  C001     MOVFF __pcstackCOMRAM, color
+0548  F012     NOP
+054A  C002     MOVFF 0x2, 0x13
+054C  F013     NOP
+49:                    set_rgbled(color[0], color[1], color[2]);
+054E  C012     MOVFF color, FSR2
+0550  FFD9     NOP
+0552  C013     MOVFF 0x13, FSR2H
+0554  FFDA     NOP
+0556  CFDE     MOVFF POSTINC2, __pcstackCOMRAM
+0558  F001     NOP
+055A  CFDD     MOVFF POSTDEC2, 0x2
+055C  F002     NOP
+055E  EE20     LFSR 2, 0x2
+0560  F002     NOP
+0562  5012     MOVF color, W, ACCESS
+0564  26D9     ADDWF FSR2, F, ACCESS
+0566  5013     MOVF 0x13, W, ACCESS
+0568  22DA     ADDWFC FSR2H, F, ACCESS
+056A  CFDE     MOVFF POSTINC2, ap
+056C  F003     NOP
+056E  CFDD     MOVFF POSTDEC2, 0x4
+0570  F004     NOP
+0572  EE20     LFSR 2, 0x4
+0574  F004     NOP
+0576  5012     MOVF color, W, ACCESS
+0578  26D9     ADDWF FSR2, F, ACCESS
+057A  5013     MOVF 0x13, W, ACCESS
+057C  22DA     ADDWFC FSR2H, F, ACCESS
+057E  CFDE     MOVFF POSTINC2, c
+0580  F005     NOP
+0582  CFDD     MOVFF POSTDEC2, 0x6
+0584  F006     NOP
+0586  ECB1     CALL 0x362, 0
+0588  F001     NOP
+50:            
+51:                    printf("end of loop");
+058A  0E01     MOVLW 0x1
+058C  6E01     MOVWF __pcstackCOMRAM, ACCESS
+058E  0E02     MOVLW 0x2
+0590  6E02     MOVWF 0x2, ACCESS
+0592  EC4B     CALL 0x696, 0
+0594  F003     NOP
+0596  D7C9     BRA 0x52A
+52:                }
+53:             }
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/lifeled.c
+1:             /* 
+2:              * File:   lifeled.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 12. Dezember 2017, 15:26
+6:              */
+7:             
+8:             #include <xc.h>
+9:             #include "spimaster.h"
+10:            
+11:            void init_lifeled()
+12:            {
+13:                //Set LED as a digital output
+14:                PORTAbits.RA4 = 0;
+0764  9880     BCF PORTA, 4, ACCESS
+15:                LATAbits.LA4 = 0;
+0766  9889     BCF LATA, 4, ACCESS
+16:                TRISAbits.RA4 = 0;
+0768  9892     BCF TRISA, 4, ACCESS
+17:            }
+076A  0012     RETURN 0
+18:            
+19:            void blink_lifeled()
+20:            {
+21:                static int i;
+22:                //Blink LED after each second
+23:                i++;
+24:                if (i == 1000)
+25:                {
+26:                    PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+27:                    i = 0;
+28:                }
+29:            }
+30:            
+31:            void blink_spiled()
+32:            {
+33:                static unsigned int i, j, a = 0, rec_spiled;
+34:             //   static int i, j;
+35:             //   static int a = 0;
+36:                //Blink LED after each second
+37:                i++;
+0456  4A1C     INFSNZ i, F, ACCESS
+0458  2A1D     INCF 0x1D, F, ACCESS
+38:                if (i == 5000)
+045A  0E88     MOVLW 0x88
+045C  181C     XORWF i, W, ACCESS
+045E  E120     BNZ 0x4A0
+0460  0E13     MOVLW 0x13
+0462  181D     XORWF 0x1D, W, ACCESS
+0464  A4D8     BTFSS STATUS, 2, ACCESS
+0466  D01C     BRA 0x4A0
+39:                {
+40:                    if (a == 1)
+0468  0418     DECF a, W, ACCESS
+046A  1019     IORWF 0x19, W, ACCESS
+046C  A4D8     BTFSS STATUS, 2, ACCESS
+046E  D00A     BRA 0x484
+41:                    {
+42:                        send_spimaster(1);
+0470  0E00     MOVLW 0x0
+0472  6E02     MOVWF 0x2, ACCESS
+0474  0E01     MOVLW 0x1
+0476  6E01     MOVWF __pcstackCOMRAM, ACCESS
+0478  ECAA     CALL 0x754, 0
+047A  F003     NOP
+43:                        a = 2;
+047C  0E00     MOVLW 0x0
+047E  6E19     MOVWF 0x19, ACCESS
+0480  0E02     MOVLW 0x2
+0482  D009     BRA 0x496
+44:                    }
+45:                    else
+46:                    {
+47:                        send_spimaster(2);
+0484  0E00     MOVLW 0x0
+0486  6E02     MOVWF 0x2, ACCESS
+0488  0E02     MOVLW 0x2
+048A  6E01     MOVWF __pcstackCOMRAM, ACCESS
+048C  ECAA     CALL 0x754, 0
+048E  F003     NOP
+48:                        a = 1;
+0490  0E00     MOVLW 0x0
+0492  6E19     MOVWF 0x19, ACCESS
+0494  0E01     MOVLW 0x1
+0496  6E18     MOVWF a, ACCESS
+49:                    }
+50:                    i = 0;
+0498  0E00     MOVLW 0x0
+049A  6E1D     MOVWF 0x1D, ACCESS
+049C  0E00     MOVLW 0x0
+049E  6E1C     MOVWF i, ACCESS
+51:                }
+52:                
+53:                rec_spiled = 0;
+04A0  0E00     MOVLW 0x0
+04A2  6E17     MOVWF 0x17, ACCESS
+04A4  0E00     MOVLW 0x0
+04A6  6E16     MOVWF rec_spiled, ACCESS
+54:                rec_spiled = rec_spislave();
+04A8  EC60     CALL 0x6C0, 0
+04AA  F003     NOP
+04AC  C001     MOVFF __pcstackCOMRAM, rec_spiled
+04AE  F016     NOP
+04B0  C002     MOVFF 0x2, 0x17
+04B2  F017     NOP
+55:                
+56:                if (rec_spiled == 1)
+04B4  0416     DECF rec_spiled, W, ACCESS
+04B6  1017     IORWF 0x17, W, ACCESS
+04B8  A4D8     BTFSS STATUS, 2, ACCESS
+04BA  D002     BRA 0x4C0
+57:                {
+58:                    PORTAbits.RA4 = 1;
+04BC  8880     BSF PORTA, 4, ACCESS
+59:                }
+04BE  0012     RETURN 0
+60:                else
+61:                {
+62:                    if (rec_spiled == 2)
+04C0  0E02     MOVLW 0x2
+04C2  1816     XORWF rec_spiled, W, ACCESS
+04C4  1017     IORWF 0x17, W, ACCESS
+04C6  A4D8     BTFSS STATUS, 2, ACCESS
+04C8  D002     BRA 0x4CE
+63:                    {
+64:                        PORTAbits.RA4 = 0;
+04CA  9880     BCF PORTA, 4, ACCESS
+65:                    }
+04CC  0012     RETURN 0
+66:                    else
+67:                    {
+68:                        j++;
+04CE  4A1A     INFSNZ j, F, ACCESS
+04D0  2A1B     INCF 0x1B, F, ACCESS
+69:                        if (j >= 1000)
+04D2  0EE8     MOVLW 0xE8
+04D4  5C1A     SUBWF j, W, ACCESS
+04D6  0E03     MOVLW 0x3
+04D8  581B     SUBWFB 0x1B, W, ACCESS
+04DA  A0D8     BTFSS STATUS, 0, ACCESS
+04DC  0012     RETURN 0
+70:                        {
+71:                            PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+04DE  A880     BTFSS PORTA, 4, ACCESS
+04E0  D002     BRA 0x4E6
+04E2  0E01     MOVLW 0x1
+04E4  D001     BRA 0x4E8
+04E6  0E00     MOVLW 0x0
+04E8  0AFF     XORLW 0xFF
+04EA  6E03     MOVWF ap, ACCESS
+04EC  3A03     SWAPF ap, F, ACCESS
+04EE  5080     MOVF PORTA, W, ACCESS
+04F0  1803     XORWF ap, W, ACCESS
+04F2  0BEF     ANDLW 0xEF
+04F4  1803     XORWF ap, W, ACCESS
+04F6  6E80     MOVWF PORTA, ACCESS
+72:                            j = 0;
+04F8  0E00     MOVLW 0x0
+04FA  6E1B     MOVWF 0x1B, ACCESS
+04FC  0E00     MOVLW 0x0
+04FE  6E1A     MOVWF j, ACCESS
+73:                        }
+74:                    }
+0500  0012     RETURN 0
+75:                }
+76:            }
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/init.c
+1:             /* 
+2:              * File:   init.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 12. Dezember 2017, 15:26
+6:              */
+7:             
+8:             #include <p18f23k22.h>
+9:             
+10:            void init_oscillator()
+11:            {
+12:                //SCS FOSC; IRCF 16MHz_HFINTOSC; IDLEN disabled; 
+13:                OSCCON = 0x70;
+0742  0E70     MOVLW 0x70
+0744  6ED3     MOVWF OSCCON, ACCESS
+14:                
+15:                //PRISD enabled; SOSCGO disabled; MFIOSEL disabled;
+16:                OSCCON2 = 0x04;
+0746  0E04     MOVLW 0x4
+0748  6ED2     MOVWF OSCCON2, ACCESS
+17:                
+18:                //INTSRC disabled; PLLEN enabled; TUN 0; 
+19:                OSCTUNE = 0x40;
+074A  0E40     MOVLW 0x40
+074C  6E9B     MOVWF OSCTUNE, ACCESS
+20:                
+21:                //Wait for PLL to stabilize
+22:                while(PLLRDY == 0)
+074E  BED2     BTFSC OSCCON2, 7, ACCESS
+0750  0012     RETURN 0
+0752  D7FD     BRA 0x74E
+23:                {
+24:                }    
+25:            }
+---  D:/Privat/Coredump/Dancepads/Coredump_git/dancepads/Elektronik/2017/Firmware/C/Project/Dancepad.X/hsi_rgb.c
+1:             /* 
+2:              * File:   hsirgb.c
+3:              * Author: astoc
+4:              *
+5:              * Created on 30. Januar 2018, 20:58
+6:              */
+7:             
+8:             #include <xc.h>
+9:             
+10:            int * hsi_rgb(int h)
+11:            {
+12:                int r, g, b = 0;
+020E  0E00     MOVLW 0x0
+0210  6E0A     MOVWF piezo1, ACCESS
+0212  0E00     MOVLW 0x0
+0214  6E09     MOVWF brightness, ACCESS
+13:                static int rgb[3];
+14:                
+15:                //Calculate RGB hexagon
+16:                if(h < 255)
+0216  BE02     BTFSC 0x2, 7, ACCESS
+0218  D005     BRA 0x224
+021A  5002     MOVF 0x2, W, ACCESS
+021C  E10F     BNZ 0x23C
+021E  2801     INCF __pcstackCOMRAM, W, ACCESS
+0220  B0D8     BTFSC STATUS, 0, ACCESS
+0222  D00C     BRA 0x23C
+17:                {
+18:                    r = 255;
+0224  0E00     MOVLW 0x0
+0226  6E06     MOVWF 0x6, ACCESS
+0228  6805     SETF c, ACCESS
+19:                    g = 0;
+022A  0E00     MOVLW 0x0
+022C  6E08     MOVWF piezo0, ACCESS
+022E  0E00     MOVLW 0x0
+0230  6E07     MOVWF g, ACCESS
+20:                    b = h;
+0232  C001     MOVFF __pcstackCOMRAM, brightness
+0234  F009     NOP
+0236  C002     MOVFF 0x2, piezo1
+0238  F00A     NOP
+21:                }
+023A  D082     BRA 0x340
+22:                else
+23:                {
+24:                    if(h < 511)
+023C  BE02     BTFSC 0x2, 7, ACCESS
+023E  D005     BRA 0x24A
+0240  2801     INCF __pcstackCOMRAM, W, ACCESS
+0242  0E01     MOVLW 0x1
+0244  5802     SUBWFB 0x2, W, ACCESS
+0246  B0D8     BTFSC STATUS, 0, ACCESS
+0248  D013     BRA 0x270
+25:                    {
+26:                        r = 511 - h;
+024A  C001     MOVFF __pcstackCOMRAM, ap
+024C  F003     NOP
+024E  C002     MOVFF 0x2, 0x4
+0250  F004     NOP
+0252  1E03     COMF ap, F, ACCESS
+0254  1E04     COMF 0x4, F, ACCESS
+0256  4A03     INFSNZ ap, F, ACCESS
+0258  2A04     INCF 0x4, F, ACCESS
+025A  0EFF     MOVLW 0xFF
+025C  2403     ADDWF ap, W, ACCESS
+025E  6E05     MOVWF c, ACCESS
+0260  0E01     MOVLW 0x1
+0262  2004     ADDWFC 0x4, W, ACCESS
+0264  6E06     MOVWF 0x6, ACCESS
+27:                        g = 0;
+0266  0E00     MOVLW 0x0
+0268  6E08     MOVWF piezo0, ACCESS
+026A  0E00     MOVLW 0x0
+026C  6E07     MOVWF g, ACCESS
+28:                        b = 255;
+026E  D011     BRA 0x292
+29:                    }
+30:                    else
+31:                    {
+32:                        if(h < 767)
+0270  BE02     BTFSC 0x2, 7, ACCESS
+0272  D005     BRA 0x27E
+0274  2801     INCF __pcstackCOMRAM, W, ACCESS
+0276  0E02     MOVLW 0x2
+0278  5802     SUBWFB 0x2, W, ACCESS
+027A  B0D8     BTFSC STATUS, 0, ACCESS
+027C  D00E     BRA 0x29A
+33:                        {
+34:                            r = 0;
+027E  0E00     MOVLW 0x0
+0280  6E06     MOVWF 0x6, ACCESS
+0282  0E00     MOVLW 0x0
+0284  6E05     MOVWF c, ACCESS
+35:                            g = h - 512;
+0286  0E00     MOVLW 0x0
+0288  2401     ADDWF __pcstackCOMRAM, W, ACCESS
+028A  6E07     MOVWF g, ACCESS
+028C  0EFE     MOVLW 0xFE
+028E  2002     ADDWFC 0x2, W, ACCESS
+0290  6E08     MOVWF piezo0, ACCESS
+36:                            b = 255;
+0292  0E00     MOVLW 0x0
+0294  6E0A     MOVWF piezo1, ACCESS
+0296  6809     SETF brightness, ACCESS
+37:                        }
+0298  D053     BRA 0x340
+38:                        else
+39:                        {
+40:                            if(h < 1023)
+029A  BE02     BTFSC 0x2, 7, ACCESS
+029C  D005     BRA 0x2A8
+029E  2801     INCF __pcstackCOMRAM, W, ACCESS
+02A0  0E03     MOVLW 0x3
+02A2  5802     SUBWFB 0x2, W, ACCESS
+02A4  B0D8     BTFSC STATUS, 0, ACCESS
+02A6  D016     BRA 0x2D4
+41:                            {
+42:                                r = 0;
+02A8  0E00     MOVLW 0x0
+02AA  6E06     MOVWF 0x6, ACCESS
+02AC  0E00     MOVLW 0x0
+02AE  6E05     MOVWF c, ACCESS
+43:                                g = 255;
+02B0  0E00     MOVLW 0x0
+02B2  6E08     MOVWF piezo0, ACCESS
+02B4  6807     SETF g, ACCESS
+44:                                b = 1023 - h;
+02B6  C001     MOVFF __pcstackCOMRAM, ap
+02B8  F003     NOP
+02BA  C002     MOVFF 0x2, 0x4
+02BC  F004     NOP
+02BE  1E03     COMF ap, F, ACCESS
+02C0  1E04     COMF 0x4, F, ACCESS
+02C2  4A03     INFSNZ ap, F, ACCESS
+02C4  2A04     INCF 0x4, F, ACCESS
+02C6  0EFF     MOVLW 0xFF
+02C8  2403     ADDWF ap, W, ACCESS
+02CA  6E09     MOVWF brightness, ACCESS
+02CC  0E03     MOVLW 0x3
+02CE  2004     ADDWFC 0x4, W, ACCESS
+02D0  6E0A     MOVWF piezo1, ACCESS
+45:                            }
+02D2  D036     BRA 0x340
+46:                            else
+47:                            {
+48:                                if(h < 1279)
+02D4  BE02     BTFSC 0x2, 7, ACCESS
+02D6  D005     BRA 0x2E2
+02D8  2801     INCF __pcstackCOMRAM, W, ACCESS
+02DA  0E04     MOVLW 0x4
+02DC  5802     SUBWFB 0x2, W, ACCESS
+02DE  B0D8     BTFSC STATUS, 0, ACCESS
+02E0  D00A     BRA 0x2F6
+49:                                {
+50:                                    r = h - 1024;
+02E2  0E00     MOVLW 0x0
+02E4  2401     ADDWF __pcstackCOMRAM, W, ACCESS
+02E6  6E05     MOVWF c, ACCESS
+02E8  0EFC     MOVLW 0xFC
+02EA  2002     ADDWFC 0x2, W, ACCESS
+02EC  6E06     MOVWF 0x6, ACCESS
+51:                                    g = 255;
+02EE  0E00     MOVLW 0x0
+02F0  6E08     MOVWF piezo0, ACCESS
+02F2  6807     SETF g, ACCESS
+52:                                    b = 0;
+02F4  D021     BRA 0x338
+53:                                }
+54:                                else
+55:                                {
+56:                                    if(h < 1535)
+02F6  BE02     BTFSC 0x2, 7, ACCESS
+02F8  D005     BRA 0x304
+02FA  2801     INCF __pcstackCOMRAM, W, ACCESS
+02FC  0E05     MOVLW 0x5
+02FE  5802     SUBWFB 0x2, W, ACCESS
+0300  B0D8     BTFSC STATUS, 0, ACCESS
+0302  D012     BRA 0x328
+57:                                    {
+58:                                        r = 255;
+0304  0E00     MOVLW 0x0
+0306  6E06     MOVWF 0x6, ACCESS
+0308  6805     SETF c, ACCESS
+59:                                        g = 1535 - h;
+030A  C001     MOVFF __pcstackCOMRAM, ap
+030C  F003     NOP
+030E  C002     MOVFF 0x2, 0x4
+0310  F004     NOP
+0312  1E03     COMF ap, F, ACCESS
+0314  1E04     COMF 0x4, F, ACCESS
+0316  4A03     INFSNZ ap, F, ACCESS
+0318  2A04     INCF 0x4, F, ACCESS
+031A  0EFF     MOVLW 0xFF
+031C  2403     ADDWF ap, W, ACCESS
+031E  6E07     MOVWF g, ACCESS
+0320  0E05     MOVLW 0x5
+0322  2004     ADDWFC 0x4, W, ACCESS
+0324  6E08     MOVWF piezo0, ACCESS
+60:                                        b = 0;
+0326  D008     BRA 0x338
+61:                                    }
+62:                                    else
+63:                                    {
+64:                                        r = 0;
+0328  0E00     MOVLW 0x0
+032A  6E06     MOVWF 0x6, ACCESS
+032C  0E00     MOVLW 0x0
+032E  6E05     MOVWF c, ACCESS
+65:                                        g = 0;
+0330  0E00     MOVLW 0x0
+0332  6E08     MOVWF piezo0, ACCESS
+0334  0E00     MOVLW 0x0
+0336  6E07     MOVWF g, ACCESS
+66:                                        b = 0;
+0338  0E00     MOVLW 0x0
+033A  6E0A     MOVWF piezo1, ACCESS
+033C  0E00     MOVLW 0x0
+033E  6E09     MOVWF brightness, ACCESS
+67:                                    }
+68:                                }
+69:                            }
+70:                        }
+71:                    }
+72:                }
+73:                
+74:                //Return colors
+75:                rgb[0] = r;
+0340  C005     MOVFF c, rgb
+0342  F020     NOP
+0344  C006     MOVFF 0x6, 0x21
+0346  F021     NOP
+76:                rgb[1] = g;
+0348  C007     MOVFF g, 0x22
+034A  F022     NOP
+034C  C008     MOVFF piezo0, 0x23
+034E  F023     NOP
+77:                rgb[2] = b;
+0350  C009     MOVFF brightness, 0x24
+0352  F024     NOP
+0354  C00A     MOVFF piezo1, 0x25
+0356  F025     NOP
+78:                
+79:                return rgb;
+0358  0E20     MOVLW 0x20
+035A  6E01     MOVWF __pcstackCOMRAM, ACCESS
+035C  0E00     MOVLW 0x0
+035E  6E02     MOVWF 0x2, ACCESS
+0360  0012     RETURN 0
+80:            }
+---  C:/Program Files (x86)/Microchip/xc8/v1.45/sources/common/putch.c  ---------------------------------
+1:             /*
+2:              * Function: putch
+3:              * Weak implementation.  User implementation may be required
+4:              */
+5:             
+6:             void 
+7:             putch(char c)
+8:             {
+9:             }
+076C  0012     RETURN 0
+10:            
+---  C:/Program Files (x86)/Microchip/xc8/v1.45/sources/common/doprnt.c  --------------------------------
+1:             #include	<stdio.h>
+2:             #include	<ctype.h>
+3:             #include	<stdlib.h>
+4:             #include	<string.h>
+5:             #include	<stdarg.h>
+6:             #include	<conio.h>
+7:             #include	<sys.h>
+8:             #include	<math.h>
+9:             #include	<float.h>
+10:            
+11:            // disable unused variable warnings
+12:            // the compiler will optimize them away, so no harm is done
+13:            #pragma warning disable 350
+14:            
+15:            /*
+16:             *	doprnt - versions depends on conditional compilation.
+17:             *	Can be customized with defines.
+18:             *
+19:             *	Copyright (c) 2012 Microchip Technology Inc. All rights reserved.
+20:             *
+21:             *	$Header$
+22:             *
+23:             */
+24:            
+25:            #ifndef	CUSTOM_PRINTF
+26:            
+27:             // define all flags, thus enabling all features
+28:            
+29:            #define	BASEM	0xC0
+30:            #define	OPTSIGN	0x00
+31:            #define	SPCSIGN	0x01
+32:            #define	MANSIGN	0x02
+33:            #define	NEGSIGN	0x03
+34:            #define	FILL	0x04
+35:            #define	LEFT	0x08
+36:            #define	LONG	0x10
+37:            #define	UPCASE	0x20
+38:            #define	TEN		0x00
+39:            #define	EIGHT	0x40
+40:            #define	SIXTEEN	0x80
+41:            #define	UNSIGN	0xC0
+42:            #ifdef	__FLOAT
+43:            #define	EFMT	0x100
+44:            #define	GFMT	0x200
+45:            #define	FFMT	0x400
+46:            #endif	// __FLOAT
+47:            #define	ALTERN	0x800
+48:            #define POINTER	0x2000
+49:            #define HEXUPCASE
+50:            #define HEXLOWCASE
+51:            
+52:             // defines for ifdef only, not used as flags
+53:            #define	WIDTH	1		// width used
+54:            #define	STAR	1		// width or precision as an arg
+55:            #define	STRING	1		// %s used
+56:            #define	CHAR	1		// %c used
+57:            #define	PERCPERC	1	// %% used
+58:            #define	SPRINTF	1		// sprintf is used
+59:            #define	PRINTF	1		// printf is used
+60:            #define	MULTRAD	1		// handle multiple radices
+61:            #define	RETVALUE	1	// return value is needed
+62:            
+63:            #else	// CUSTOM_PRINTF
+64:            
+65:            #if	defined(HEXUPCASE) || defined(HEXLOWCASE)
+66:            #define	SIXTEEN
+67:            #endif
+68:            
+69:            #if	defined(HEXUPCASE) && defined(HEXLOWCASE)
+70:            #ifndef UPCASE
+71:            #define	UPCASE
+72:            #endif
+73:            #endif
+74:            
+75:             // make sure we have the right values for each define
+76:            #ifdef	OPTSIGN
+77:            #undef	OPTSIGN
+78:            #define	OPTSIGN	0x00
+79:            #endif
+80:            #ifdef	SPCSIGN
+81:            #undef	SPCSIGN
+82:            #define	SPCSIGN	0x01
+83:            #endif
+84:            #ifdef	MANSIGN
+85:            #undef	MANSIGN
+86:            #define	MANSIGN	0x02
+87:            #define	SPCSIGN	0x01
+88:            #endif
+89:            #ifdef	NEGSIGN
+90:            #undef	NEGSIGN
+91:            #define	NEGSIGN	0x03
+92:            #endif
+93:            #ifdef	FILL
+94:            #define	WIDTH	1
+95:            #undef	FILL
+96:            #define	FILL	0x04
+97:            #endif
+98:            #ifdef	LEFT
+99:            #undef	LEFT
+100:            // LEFT without WIDTH is meaningless
+101:           #ifdef	WIDTH
+102:           #define	LEFT	0x08
+103:           #endif
+104:           #endif
+105:           #ifdef	LONG
+106:           #undef	LONG
+107:           #define	LONG	0x10
+108:           #define	__LONG	1
+109:           #endif
+110:           #ifdef	UPCASE
+111:           #undef	UPCASE
+112:           #define	UPCASE	0x20
+113:           #endif
+114:           #ifdef	TEN	
+115:           #undef	TEN	
+116:           #define	TEN		0x00
+117:           #endif
+118:           #ifdef	EIGHT
+119:           #undef	EIGHT
+120:           #define	EIGHT	0x40
+121:           #endif
+122:           #ifdef	SIXTEEN
+123:           #undef	SIXTEEN
+124:           #define	SIXTEEN	0x80
+125:           #endif
+126:           #ifdef	UNSIGN
+127:           #undef	UNSIGN
+128:           #define	UNSIGN	0xC0
+129:           #endif
+130:           #ifdef	EFMT
+131:           #undef	EFMT
+132:           #define	EFMT	0x100
+133:           #endif
+134:           #ifdef	GFMT
+135:           #undef	GFMT
+136:           #define	GFMT	0x200
+137:           #endif
+138:           #ifdef	FFMT
+139:           #undef	FFMT
+140:           #define	FFMT	0x400
+141:           #endif
+142:           #ifdef	ALTERN
+143:           #undef	ALTERN
+144:           #define	ALTERN	0x800
+145:           #endif
+146:           #ifdef	POINTER
+147:           #undef	POINTER
+148:           #define POINTER	0x2000
+149:           #ifndef	SIXTEEN
+150:           #define	SIXTEEN	0x80
+151:           #endif
+152:           #endif
+153:           #ifdef	PRECISION
+154:           #undef	PRECISION
+155:           #define PRECISION	0x4000
+156:           #endif
+157:           
+158:           #if	defined(TEN) && !defined(EIGHT) && !defined(SIXTEEN) && defined(UNSIGN)
+159:           #undef	UNSIGN
+160:           #define	UNSIGN	0x40
+161:           #define	BASEM	UNSIGN
+162:           #endif
+163:           #if	defined(UNSIGN) && (defined(EIGHT) || defined(SIXTEEN))
+164:           #define	MULTRAD	1
+165:           #define	BASEM	(UNSIGN)
+166:           #endif
+167:           #if	defined(TEN) && !defined(SIXTEEN) && defined(EIGHT) && !defined(UNSIGN)
+168:           #define	BASEM	EIGHT
+169:           #define	MULTRAD	1
+170:           #endif
+171:           #if	defined(TEN) && defined(SIXTEEN) && !defined(EIGHT) && !defined(UNSIGN)
+172:           #define	BASEM	SIXTEEN
+173:           #define	MULTRAD	1
+174:           #endif
+175:           #if	defined(SIXTEEN) && defined(EIGHT) && !defined(BASEM)
+176:           #define	BASEM	(SIXTEEN|EIGHT)
+177:           #define	MULTRAD	1
+178:           #endif
+179:           
+180:           #endif
+181:           
+182:            // float code needs these flags
+183:           #if	defined(EFMT) || defined(GFMT) || defined(FFMT)
+184:           #ifndef	__FLOAT
+185:           #define	__FLOAT	1
+186:           #endif
+187:           #define	FLOATFORMAT	0x700
+188:           #ifdef	PRECISION
+189:           #define	DEFPREC	0x1000
+190:           #endif
+191:           #endif
+192:           
+193:           #ifdef	__FLOAT
+194:           //#ifndef	MANSIGN
+195:           //#define	MANSIGN	0x02
+196:           //#endif
+197:           //#ifndef	SPCSIGN
+198:           //#define	SPCSIGN	0x01
+199:           //#endif
+200:           #ifndef	NEGSIGN
+201:           #define	NEGSIGN	0x03
+202:           #endif
+203:           //#ifndef	WIDTH
+204:           //#define	WIDTH	1
+205:           //#endif
+206:           #endif
+207:           
+208:           #ifdef	SPCSIGN
+209:           #define	putsign()	pputc(flag & SPCSIGN ? '-' : '+')
+210:           #else
+211:           #define	putsign()	pputc('-')
+212:           #endif	// SPCSIGN
+213:           
+214:           // were there ANY % formats defined?
+215:           #if	defined(FLOATFORMAT) || defined(TEN) || defined(EIGHT) || defined(SIXTEEN) || \
+216:           	defined(CHAR) || defined(POINTER) || defined(STRING) || defined(UNSIGN) || defined(PERCPERC)
+217:           #define	ANYFORMAT
+218:           #else
+219:           #undef	ANYFORMAT
+220:           #endif
+221:           
+222:           #ifdef	CHAR
+223:           #ifndef	PERCPERC
+224:           #define	PERCPERC
+225:           #endif
+226:           #endif
+227:           
+228:           #if	!defined(PRINTF) && !defined(VPRINTF) && !defined(SPRINTF) && !defined(VSPRINTF)
+229:           #error	Must define at least one of PRINTF SPRINTF or VSPRINTF
+230:           #endif
+231:           
+232:           #if	i8086 && SMALL_DATA
+233:           #define	CONST	far
+234:           #else
+235:           #define	CONST	const
+236:           #endif
+237:           
+238:            /* we don't need plus signs, use minus signs only if we have floats or signed ints */
+239:           
+240:           #if	!defined(NEGSIGN) && defined(TEN)
+241:           #define	NEGSIGN	0x03
+242:           #endif
+243:           
+244:           #ifndef	RETVALUE
+245:           #define	INCR_CNT	/*nix */
+246:           #else
+247:           #define	INCR_CNT	,(++ccnt)
+248:           #endif
+249:           
+250:           #if	defined(EFMT) || defined(GFMT) || defined(FFMT) || defined(ALTERN) || defined(DEFPREC) || defined(POINTER)
+251:           #define	FLAG_SIZE	unsigned short
+252:           #else
+253:           #define	FLAG_SIZE	unsigned char
+254:           #endif
+255:           
+256:           
+257:           #if	(sizeof(long) == sizeof(int) || defined(__FLOAT)) && !defined(__LONG)
+258:           #define	__LONG	1
+259:           #endif
+260:           
+261:           #if	sizeof(double) == sizeof(long) && DBL_MAX_EXP == 128
+262:           #undef	frexp
+263:           #define	frexp(val, ptr) (void)(*(ptr) = (unsigned char)((*(unsigned long *)&val >> 23) & 255) - 126)
+264:           #elif	defined(_PSOC_)
+265:           #undef	frexp
+266:           #define	frexp(val, ptr) (void)(*(ptr) = ((unsigned char)(*(unsigned short long *)&val >> 15)) - 126)
+267:           #elif	sizeof(double) == 3 && DBL_MAX_EXP == 128
+268:           #undef	frexp
+269:           #define	frexp(val, ptr) (void)(*(ptr) = ((*(unsigned long *)&val >> 15) & 255) - 126)
+270:           #endif
+271:           
+272:           #if	defined(__FLOAT) && sizeof(double) == 8
+273:           #define	DOUBLE	1
+274:           
+275:           extern double	_dto64i(double);
+276:           extern double	_64itod(double);
+277:           extern double	_div64(double, double);
+278:           extern double	_divto64i(double, double);
+279:           extern unsigned	_div64ir(double, double);
+280:           extern unsigned	_mod64i10(double);
+281:           
+282:           #else
+283:           #define	DOUBLE	0
+284:           #endif
+285:           
+286:           #ifdef	__LONG
+287:           #define	value	long
+288:           #define	NDIG	12		/* max number of digits to be printed */
+289:           #else
+290:           #define	value	int
+291:           #define	NDIG	6		/* max number of digits to be printed */
+292:           #endif
+293:           
+294:           #if	DOUBLE
+295:           union {
+296:           	unsigned long	ul[40];
+297:           	double		db[20];
+298:           }	_fdp =
+299:           {
+300:           #if	!defined(BIG_ENDIAN) && !defined(LITTLE_ENDIAN)
+301:           #error Neither BIG_ENDIAN or LITTLE_ENDIAN has been set
+302:           #endif
+303:           #if	BIG_ENDIAN
+304:           	0x00000000,0x00000001,
+305:           	0x00000000,0x0000000A,
+306:           	0x00000000,0x00000064,
+307:           	0x00000000,0x000003E8,
+308:           	0x00000000,0x00002710,
+309:           	0x00000000,0x000186A0,
+310:           	0x00000000,0x000F4240,
+311:           	0x00000000,0x00989680,
+312:           	0x00000000,0x05F5E100,
+313:           	0x00000000,0x3B9ACA00,
+314:           	0x00000002,0x540BE400,
+315:           	0x00000017,0x4876E800,
+316:           	0x000000E8,0xD4A51000,
+317:           	0x00000918,0x4E72A000,
+318:           	0x00005AF3,0x107A4000,
+319:           	0x00038D7E,0xA4C68000,
+320:           	0x002386F2,0x6FC10000,
+321:           	0x01634578,0x5D8A0000,
+322:           	0x0DE0B6B3,0xA7640000,
+323:           	0x8AC72304,0x89E80000,
+324:           #else
+325:           	0x00000001,0x00000000,
+326:           	0x0000000A,0x00000000,
+327:           	0x00000064,0x00000000,
+328:           	0x000003E8,0x00000000,
+329:           	0x00002710,0x00000000,
+330:           	0x000186A0,0x00000000,
+331:           	0x000F4240,0x00000000,
+332:           	0x00989680,0x00000000,
+333:           	0x05F5E100,0x00000000,
+334:           	0x3B9ACA00,0x00000000,
+335:           	0x540BE400,0x00000002,
+336:           	0x4876E800,0x00000017,
+337:           	0xD4A51000,0x000000E8,
+338:           	0x4E72A000,0x00000918,
+339:           	0x107A4000,0x00005AF3,
+340:           	0xA4C68000,0x00038D7E,
+341:           	0x6FC10000,0x002386F2,
+342:           	0x5D8A0000,0x01634578,
+343:           	0xA7640000,0x0DE0B6B3,
+344:           	0x89E80000,0x8AC72304,
+345:           #endif
+346:           };
+347:           
+348:           #define	fdpowers	_fdp.db
+349:           
+350:           #else
+351:           #define	fdpowers	dpowers
+352:           #endif
+353:           #if defined(TEN) || defined(__FLOAT) || defined (UNSIGN)
+354:           const static unsigned value	dpowers[] =	{1, 10, 100, 1000, 10000,
+355:           #ifdef	__LONG
+356:           						 100000, 1000000, 10000000, 100000000,
+357:           						 1000000000
+358:           #endif
+359:           							 };
+360:           #endif
+361:           #ifdef	SIXTEEN
+362:           const static unsigned value	hexpowers[] =	{1, 0x10, 0x100, 0x1000,
+363:           #if	__LONG
+364:           						 0x10000, 0x100000, 0x1000000, 0x10000000
+365:           #endif
+366:           							};
+367:           #endif
+368:           #ifdef	EIGHT
+369:           const static unsigned value	octpowers[] =	{1, 010, 0100, 01000, 010000, 0100000,
+370:           #ifdef	__LONG
+371:           						01000000,
+372:           						 010000000, 0100000000, 01000000000, 010000000000,
+373:           						 0100000000000
+374:           #endif
+375:           							};
+376:           #endif
+377:           
+378:           #ifdef	__FLOAT
+379:           
+380:           #define	NDDIG	(sizeof fdpowers/sizeof fdpowers[0])
+381:           
+382:           #if	DBL_MAX_10_EXP > 120
+383:           #define	expon	int
+384:           #else
+385:           #define	expon	signed char
+386:           #endif
+387:           
+388:           extern const double	_powers_[], _npowers_[];
+389:           #ifdef	z80
+390:           #define	_div_to_l_(a, b)	((unsigned long)((a)/(b)))
+391:           #else
+392:           extern unsigned long	_div_to_l_(double, double);
+393:           #ifdef	_OMNI_CODE_
+394:           extern unsigned long	_tdiv_to_l_(float, float);
+395:           #ifdef	_HTKC_
+396:           #pragma callname _div_to_l_ double
+397:           #pragma callname _tdiv_to_l_ float
+398:           #endif
+399:           #define	div_to_l_(a,b)	((sizeof(double)== 3) ? _tdiv_to_l_(a,b) : _div_to_l_(a,b))
+400:           #else
+401:           #define	div_to_l_	_div_to_l_
+402:           #endif
+403:           #endif
+404:           
+405:           /* this routine returns a value to round to the number of decimal
+406:           	places specified */
+407:           #if __FLOAT
+408:           static double
+409:           fround(unsigned char prec)
+410:           {
+411:           	/* prec is guaranteed to be less than NDIG */
+412:           
+413:           	if(prec>=110)
+414:           		return 0.5 * _npowers_[prec/100+18] * _npowers_[(prec%100)/10+9] * _npowers_[prec%10];
+415:           	else if(prec > 10)
+416:           		return 0.5 * _npowers_[prec/10+9] * _npowers_[prec%10];
+417:           	return 0.5 * _npowers_[prec];
+418:           }
+419:           #endif
+420:           
+421:           /* this routine returns a scaling factor equal to 1 to the decimal
+422:              power supplied */
+423:           
+424:           static double
+425:           scale(expon scl)
+426:           {
+427:           
+428:           	if(scl < 0) {
+429:           		scl = -scl;
+430:           		if(scl>=110)
+431:           			return _npowers_[scl/100+18] * _npowers_[(scl%100)/10+9] * _npowers_[scl%10];
+432:           		else if(scl > 10)
+433:           			return _npowers_[scl/10+9] * _npowers_[scl%10];
+434:           		return _npowers_[scl];
+435:           	}
+436:           	if(scl>=110)
+437:           		return _powers_[scl/100+18] * _powers_[(scl%100)/10+9] * _powers_[scl%10];
+438:           	else if(scl > 10)
+439:           		return _powers_[scl/10+9] * _powers_[scl%10];
+440:           	return _powers_[scl];
+441:           }
+442:           
+443:           
+444:           #endif	/* __FLOAT */
+445:           
+446:           
+447:           
+448:           #ifdef	_HOSTED
+449:           #define	pputc(c)	(putc(c, fp) != EOF && ++ccnt)
+450:           int
+451:           vfprintf(FILE * fp, register const  char * f, register va_list ap)
+452:           {
+453:           	char		cbuf[2];
+454:           #else	/* _HOSTED */
+455:           int
+456:           #if	defined(VPRINTF) || (defined(PRINTF) && (defined(SPRINTF) || defined(VSPRINTF)))
+457:           #define	pputc(c)	if(pb->func) (pb->func(c))INCR_CNT; else ((*pb->ptr++ = c)INCR_CNT)
+458:           _doprnt(struct __prbuf * pb, register const  char * f, register va_list ap)
+459:           {
+460:           #endif
+461:           
+462:           #if	defined(PRINTF) && !(defined(SPRINTF) || defined(VSPRINTF))
+463:           #define	pputc(c)	(putch(c) INCR_CNT)
+464:           printf(const char * f, ...)
+465:           {
+466:           	va_list	ap;
+467:           #define	NEED_START
+468:           #endif
+469:           
+470:           #if	!defined(PRINTF) && defined(VSPRINTF)
+471:           
+472:           #ifdef	SPRINTF
+473:           sprintf(char * sp, const char * f, ...)
+474:           {
+475:           	va_list	ap;
+476:           
+477:           	va_start(ap, f);
+478:           	vsprintf(sp, f, ap);
+479:           	va_end(ap);
+480:           }
+481:           int
+482:           #endif	// SPRINTF
+483:           
+484:           #define	pputc(c)	((*sp++ = (c))INCR_CNT)
+485:           vsprintf(char * sp, register const  char * f, register va_list ap)
+486:           {
+487:           #define NEED_START
+488:           #endif	// VSPRINTF
+489:           
+490:           #if	!defined(PRINTF) && defined(SPRINTF) && !defined(VSPRINTF)
+491:           #define	pputc(c)	((*sp++ = (c))INCR_CNT)
+492:           sprintf(char * sp, const  char * f, ...)
+493:           {
+494:           	va_list	ap;
+495:           #define	NEED_START
+496:           #endif
+497:           #endif	// HOSTED
+498:           
+499:           	signed char		c;
+500:           #if	defined(WIDTH) || defined(__FLOAT)
+501:           	int		width;
+502:           #endif
+503:           #ifdef	__LONG
+504:           	int		prec;
+505:           #else
+506:           	signed char	prec;
+507:           #endif
+508:           	FLAG_SIZE	flag;
+509:           #ifdef	RETVALUE
+510:           	int		ccnt = 0;
+511:           #else
+512:           #define	ccnt	0
+513:           #endif
+514:           #ifdef	__FLOAT
+515:           	char	d;
+516:           	double	fval; 
+517:           	int		exp;
+518:           #if DOUBLE
+519:           	double		ival;
+520:           #endif
+521:           #endif
+522:           #if ! DOUBLE || __FLOAT
+523:           	union {
+524:           		unsigned long vd;
+525:           		double integ;
+526:           	} tmpval;
+527:           #endif
+528:           	unsigned value	val;
+529:           	unsigned	len;
+530:           	CONST char *	cp;
+531:           	
+532:           #ifdef	NEED_START
+533:           	va_start(ap, f);
+0696  0E03     MOVLW 0x3
+0698  6E03     MOVWF ap, ACCESS
+069A  0E00     MOVLW 0x0
+069C  6E04     MOVWF 0x4, ACCESS
+534:           #endif
+535:           
+536:           	while(c = *f++) {
+069E  D003     BRA 0x6A6
+537:           #ifdef	ANYFORMAT
+538:           		if(c != '%')
+539:           #endif	//ANYFORMAT
+540:           		{
+541:           			pputc(c);
+06A0  5005     MOVF c, W, ACCESS
+06A2  ECB6     CALL 0x76C, 0
+06A4  F003     NOP
+542:           			continue;
+543:           		}
+544:           #ifdef	ANYFORMAT
+545:           #ifdef	WIDTH
+546:           		width = 0;
+547:           #endif
+548:           		flag = 0;
+549:           #if	defined(LEFT) || defined(SPCSIGN) || defined(MANSIGN) || defined(ALTERN) || defined(FILL)
+550:           		for(;;) {
+551:           			switch(*f) {
+552:           #ifdef	LEFT
+553:           			case '-':
+554:           				flag |= LEFT;
+555:           				f++;
+556:           				continue;
+557:           #endif
+558:           
+559:           #ifdef	SPCSIGN
+560:           			case ' ':
+561:           				flag |= SPCSIGN;
+562:           				f++;
+563:           				continue;
+564:           #endif
+565:           
+566:           #ifdef	MANSIGN
+567:           			case '+':
+568:           				flag |= MANSIGN;
+569:           				f++;
+570:           				continue;
+571:           #endif
+572:           #ifdef	ALTERN
+573:           			case '#':
+574:           				flag |= ALTERN;
+575:           				f++;
+576:           				continue;
+577:           #endif
+578:           #ifdef	FILL
+579:           			case '0':
+580:           				flag |= FILL;
+581:           				f++;
+582:           				continue;
+583:           #endif
+584:           			}
+585:           			break;
+586:           		}
+587:           #endif
+588:           #if	defined(MANSIGN) && defined(SPCSIGN)
+589:           		if(flag & MANSIGN)
+590:           			flag &= ~SPCSIGN;
+591:           #endif
+592:           #if	defined(LEFT) && defined(FILL)
+593:           		if(flag & LEFT)
+594:           			flag &= ~FILL;
+595:           #endif
+596:           #ifdef	WIDTH
+597:           		if(isdigit((unsigned)*f)) {
+598:           			width = 0;
+599:           			do {
+600:           				width *= 10;
+601:           			   	width += *f++ - '0';
+602:           			} while(isdigit((unsigned)*f));
+603:           #ifdef	STAR
+604:           		} else if(*f == '*') {
+605:           			width = va_arg(ap, int);
+606:           			f++;
+607:           #endif
+608:           		}
+609:           #endif
+610:           #ifdef	PRECISION
+611:           		if(*f == '.') {
+612:           			flag |= PRECISION;
+613:           			f++;
+614:           #ifdef	STAR
+615:           			if(*f == '*') {
+616:           				prec = va_arg(ap, int);
+617:           				f++;
+618:           			} else
+619:           #endif
+620:           			{
+621:           				prec = 0;
+622:           				while(isdigit((unsigned)*f))
+623:           					prec = prec*10 + *f++ - '0';
+624:           			}
+625:           		} else {
+626:           			prec = 0;
+627:           #ifdef	DEFPREC
+628:           			flag |= DEFPREC;
+629:           #endif	// DEFPREC
+630:           		}
+631:           #endif	// PRECISION
+632:           #if	defined(__LONG) && defined(LONG)
+633:           loop:
+634:           #endif
+635:           		switch(c = *f++) {
+636:           
+637:           		case 0:
+638:           			goto alldone;
+639:           
+640:           #ifdef	LONG
+641:           		case 'l':
+642:           #ifdef	__LONG
+643:           			flag |= LONG;
+644:           			goto loop;
+645:           #else
+646:           			cp = "(non-long printf)";
+647:           			goto strings;
+648:           #endif
+649:           #endif
+650:           
+651:           #ifdef	FLOATFORMAT
+652:           #ifndef	__FLOAT
+653:           		case 'E':
+654:           		case 'f':
+655:           		case 'e':
+656:           		case 'G':
+657:           		case 'g':
+658:           			cp = "(non-float printf)";
+659:           			goto strings;
+660:           #else
+661:           #ifdef	FFMT
+662:           		case 'f':
+663:           			flag |= FFMT;
+664:           			break;
+665:           #endif
+666:           
+667:           #ifdef	EFMT
+668:           #ifdef	UPCASE
+669:           		case 'E':
+670:           			flag |= UPCASE;
+671:           #endif
+672:           		case 'e':
+673:           			flag |= EFMT;
+674:           			break;
+675:           #endif
+676:           
+677:           #ifdef	GFMT
+678:           #ifdef	UPCASE
+679:           		case 'G':
+680:           			flag |= UPCASE;
+681:           #endif
+682:           		case 'g':
+683:           			flag |= GFMT;
+684:           			break;
+685:           #endif	// GFMT
+686:           #endif
+687:           #endif	// FLOATFORMAT
+688:           #ifdef	EIGHT
+689:           		case 'o':
+690:           #ifdef	MULTRAD
+691:           			flag |= EIGHT;
+692:           #endif
+693:           			break;
+694:           #endif
+695:           
+696:           #ifdef	TEN
+697:           		case 'd':
+698:           		case 'i':
+699:           			break;
+700:           #endif
+701:           
+702:           #ifdef	POINTER
+703:           		case 'p':
+704:           #if	i8086 && LARGE_DATA
+705:           			flag |= LONG;
+706:           #elif	_PIC18
+707:           			flag |= POINTER;
+708:           #endif
+709:           #endif	// POINTER
+710:           #ifdef	SIXTEEN
+711:           #ifdef	HEXUPCASE
+712:           		case 'X':
+713:           #ifdef	UPCASE
+714:           			flag |= UPCASE;
+715:           #endif
+716:           #endif
+717:           #if	defined(HEXLOWCASE) || !defined(UPCASE)
+718:           		case 'x':
+719:           #endif
+720:           #ifdef	MULTRAD
+721:           			flag |= SIXTEEN;
+722:           #endif
+723:           			break;
+724:           #endif	// SIXTEEN
+725:           
+726:           #if	defined(STRING) || defined(PERCPERC)
+727:           #ifdef	STRING
+728:           		case 's':
+729:           #if	i8086 && SMALL_DATA
+730:           			if(flag & LONG)
+731:           				cp = va_arg(ap, far char *);
+732:           			else
+733:           #endif
+734:           				cp = va_arg(ap, const char *);
+735:           #endif	// STRING
+736:           #if	!defined(__FLOAT) && !defined(CUSTOM_PRINTF)
+737:           strings:
+738:           #endif
+739:           #ifdef	STRING
+740:           			if(!cp)
+741:           				cp = "(null)";
+742:           #endif
+743:           #if	defined(WIDTH) || defined(PRECISION)
+744:           #if	defined(STRING)
+745:           			len = 0;
+746:           			while(cp[len])
+747:           				len++;
+748:           #endif
+749:           #ifdef	PERCPERC
+750:           dostring:
+751:           #endif
+752:           #ifdef	PRECISION
+753:           			if(prec && prec < len)
+754:           				len = prec;
+755:           #endif	// PRECISION
+756:           #ifdef	WIDTH
+757:           			if(width > len)
+758:           				width -= len;
+759:           			else
+760:           				width = 0;
+761:           #ifdef	LEFT
+762:           			if(!(flag & LEFT))
+763:           #endif	// LEFT
+764:           				while(width--)
+765:           					pputc(' ');
+766:           #endif	// WIDTH
+767:           			while(len--)
+768:           				pputc(*cp++);
+769:           #ifdef	LEFT
+770:           			if(flag & LEFT)
+771:           				while(width--)
+772:           					pputc(' ');
+773:           #endif	// LEFT
+774:           			continue;
+775:           #else	// WIDTH || PRECISION
+776:           #if	defined(STRING)
+777:           			while(*cp)
+778:           				pputc(*cp++);
+779:           			continue;
+780:           #endif
+781:           #endif	// WIDTH || PRECISION
+782:           #endif	// defined(STRING) || defined(PERCPERC)
+783:           #ifdef	CHAR
+784:           		case 'c':
+785:           #if	_HOSTED
+786:           			val = va_arg(ap, int);
+787:           			c = val >> 8;
+788:           			if(flag & LONG && c && (unsigned char)c != 0xFF) {
+789:           				cbuf[0] = c;
+790:           				cbuf[1] = val;
+791:           				len = 2;
+792:           			} else {
+793:           				cbuf[0] = val;
+794:           				len = 1;
+795:           			}
+796:           			cp = cbuf;
+797:           			goto dostring;
+798:           #else
+799:           			c = va_arg(ap, int);
+800:           #endif	// _HOSTED
+801:           #endif	// CHAR
+802:           		default:
+803:           #ifdef	PERCPERC
+804:           #if	defined(WIDTH) || defined(PRECISION)
+805:           			cp = (char *)&c;
+806:           			len = 1;
+807:           			goto dostring;
+808:           #else
+809:           			pputc(c);
+810:           			continue;
+811:           #endif
+812:           #else	// PERCPERC
+813:           			continue;
+814:           #endif
+815:           
+816:           #ifdef	UNSIGN
+817:           		case 'u':
+818:           			flag |= UNSIGN;
+819:           			break;
+820:           #endif
+821:           
+822:           		}
+823:           #endif	// ANYFORMAT
+824:           #ifdef	__FLOAT
+825:           		if(flag & (FLOATFORMAT)) {
+826:           #ifdef	DEFPREC
+827:           			if(flag & DEFPREC)
+828:           #endif
+829:           				prec = 6;
+830:           			fval = va_arg(ap, double);	// source the floating point value
+831:           			if(fval < 0.0) {
+832:           				fval = -fval;		// get the absolute value
+833:           				flag |= NEGSIGN;
+834:           			}
+835:           			exp = 0;		/* If the number is zero, the exponent is zero. */
+836:           			if( fval!=0) {		/* If the number is non-zero, find the exponent. */
+837:           				frexp(fval, &exp);		/* get binary exponent */
+838:           				exp--;				/* adjust 0.5 -> 1.0 */
+839:           				exp *= 3;
+840:           				exp /= 10;			/* estimate decimal exponent */
+841:           				if(exp < 0)
+842:           					exp--;
+843:           				// the following line can cause "recursive call" errors because scale calls
+844:           				// ftmul, and is used when evaluating an argument to ftmul
+845:           				//integ = fval * scale(-exp);
+846:           				tmpval.integ = scale(-exp);		// replaced with this
+847:           				tmpval.integ *= fval;
+848:           				if(tmpval.integ < 1.0)
+849:           					exp--;
+850:           				else if(tmpval.integ >= 10.0)
+851:           					exp++;
+852:           			}
+853:           #if	defined(EFMT) || defined(GFMT)
+854:           			if(exp <= 0)	// value is 0.??? (neg expnt) whole characters = 1 (allow zero)
+855:           				c = 1;
+856:           			else
+857:           				c = exp;
+858:           			if(
+859:           #ifdef	EFMT
+860:           					flag & EFMT
+861:           #ifdef	GFMT
+862:           					||
+863:           #endif
+864:           #endif
+865:           #ifdef	GFMT
+866:           					flag & GFMT && (exp < -4 || exp >= (int)prec)
+867:           #endif
+868:           				) {	/* use e format */
+869:           #ifdef	GFMT
+870:           				if(prec && flag & GFMT)
+871:           					prec--;		/* g format precision includes integer digit */
+872:           #endif
+873:           				if((unsigned)prec > NDDIG - 2)
+874:           					c = NDDIG - 2;
+875:           				else
+876:           					c = prec;
+877:           				if( fval!=0) {	/* Normalise only if the number is non-zero. */
+878:           					fval /= scale(exp-c);
+879:           #if	DOUBLE
+880:           					ival = _dto64i(fval);
+881:           					if(fval - _64itod(ival) >= 0.5) {
+882:           						fval += 0.5;
+883:           						ival = _dto64i(fval);
+884:           					}
+885:           					if(ival >= fdpowers[c+1]) {
+886:           						fval *= 1e-1;
+887:           						exp++;
+888:           					} else if(ival < fdpowers[c]) {
+889:           						fval *= 10.0;
+890:           						exp--;
+891:           					}
+892:           #else	
+893:           					if(fval - (double)(unsigned long)fval >= 0.5)
+894:           						fval += 0.5;
+895:           					if((unsigned long)fval >= fdpowers[c+1]) {
+896:           						fval *= 1e-1;
+897:           						exp++;
+898:           					} else if((unsigned long)fval < fdpowers[c]) {
+899:           						fval *= 10.0;
+900:           						exp--;
+901:           					}
+902:           #endif
+903:           				}
+904:           #if defined(GFMT) && defined(ALTERN)
+905:           				if(flag & GFMT && !(flag & ALTERN)) {		/* g format, precision means something different */
+906:           					if(prec > (int)(NDDIG))
+907:           						prec = NDDIG;
+908:           #if	DOUBLE
+909:           					ival = _dto64i(fval);
+910:           					while(ival != 0.0 && _mod64i10(ival) == 0) {
+911:           						prec--;
+912:           						ival = _div64(ival, fdpowers[1]);
+913:           					}
+914:           #else
+915:           					val = (unsigned long)fval;
+916:           					while(val && val % 10 == 0) {
+917:           						prec--;
+918:           						val /= 10;
+919:           					}
+920:           #endif
+921:           					if(prec < c) {
+922:           						fval /= scale(c-prec);
+923:           						c = prec;
+924:           					}
+925:           
+926:           				}
+927:           #endif
+928:           #ifdef	WIDTH
+929:           				width -=  prec + 5;
+930:           #ifdef	ALTERN
+931:           				if(prec || flag & ALTERN)
+932:           					width--;
+933:           #endif
+934:           				if(flag & NEGSIGN)
+935:           					width--;
+936:           #if	DBL_MAX_10_EXP >= 100
+937:           #if	DBL_MAX_10_EXP >= 1000
+938:           				if(exp >= 1000 || exp <= -1000)	/* 4 digit exponent */
+939:           					width--;
+940:           #endif
+941:           				if(exp >= 100 || exp <= -100)	/* 3 digit exponent */
+942:           					width--;
+943:           #endif
+944:           #endif	// WIDTH
+945:           #ifdef	FILL
+946:           				if(flag & FILL) {
+947:           #if defined(MANSIGN) && defined(SPCSIGN)
+948:           					if(flag & MANSIGN)
+949:           						pputc(flag & SPCSIGN ? '-' : '+');
+950:           					else if(flag & SPCSIGN)
+951:           						pputc(' ');
+952:           #endif
+953:           					while(width > 0) {
+954:           						pputc('0');
+955:           						width--;
+956:           					}
+957:           				} else
+958:           #endif	// FILL
+959:           				{
+960:           #ifdef	WIDTH
+961:           #ifdef	LEFT
+962:           					if(!(flag & LEFT))
+963:           #endif
+964:           						while(width > 0) {
+965:           							pputc(' ');
+966:           							width--;
+967:           						}
+968:           #endif	// WIDTH
+969:           #ifdef	MANSIGN
+970:           					if(flag & MANSIGN)
+971:           						putsign();
+972:           #else
+973:           					if(flag & NEGSIGN)
+974:           						pputc('-');
+975:           #endif	// MANSIGN
+976:           #ifdef	SPCSIGN
+977:           					else if(flag & SPCSIGN)
+978:           						pputc(' ');
+979:           #endif	// SPCSIGN
+980:           				}
+981:           #if	DOUBLE
+982:           				ival = _dto64i(fval);
+983:           				pputc(_div64ir(ival, fdpowers[c]) + '0');
+984:           #else
+985:           				val = (unsigned long)fval;
+986:           				pputc(val/dpowers[c] + '0');
+987:           				val %= dpowers[c];
+988:           #endif
+989:           #ifdef	ALTERN
+990:           				if(prec || flag & ALTERN)
+991:           #else
+992:           				if(prec)
+993:           #endif
+994:           				{
+995:           					pputc('.');
+996:           					prec -= c;
+997:           					while(c--) {
+998:           #if	DOUBLE
+999:           						pputc('0' + _mod64i10(_div64(ival, fdpowers[c])));
+1000:          #else
+1001:          #ifdef	GFMT
+1002:          						if(flag & GFMT && val == 0) {
+1003:          							prec = c = 0;
+1004:          							break;
+1005:          						}
+1006:          #endif
+1007:          						pputc('0' + (val/dpowers[c]));
+1008:          						val %= dpowers[c];
+1009:          #endif
+1010:          					}
+1011:          					while(prec) {
+1012:          						pputc('0');
+1013:          						prec--;
+1014:          					}
+1015:          				}
+1016:          #ifdef	UPCASE
+1017:          				if(flag & UPCASE)
+1018:          					pputc('E');
+1019:          				else
+1020:          #endif
+1021:          					pputc('e');
+1022:          				if(exp < 0) {
+1023:          					exp = -exp;
+1024:          					pputc('-');
+1025:          				} else
+1026:          					pputc('+');
+1027:          #if	DBL_MAX_10_EXP >= 100
+1028:          #if	DBL_MAX_10_EXP >= 1000
+1029:          				if(exp >= 1000) {
+1030:          					pputc(exp / 1000 + '0');
+1031:          					exp %= 1000;
+1032:          				}
+1033:          #endif
+1034:          				if(exp >= 100) {
+1035:          					pputc(exp / 100 + '0');
+1036:          					exp %= 100;
+1037:          				}
+1038:          #endif
+1039:          				pputc(exp / 10 + '0');
+1040:          				pputc(exp % 10 + '0');
+1041:          #ifdef	LEFT
+1042:          				if((flag & LEFT) && width > 0)
+1043:          					do
+1044:          						pputc(' ');
+1045:          					while(--width);
+1046:          #endif	// LEFT
+1047:          					continue;
+1048:          				}
+1049:          #endif	// EFMT || GFMT
+1050:          				/* here for f format */
+1051:          #if	DOUBLE
+1052:          #ifdef	GFMT
+1053:          				if(flag & GFMT) {
+1054:          					if(exp < 0)	// fractional part only
+1055:          						prec -= exp-1;
+1056:          					ival = _dto64i(fval);
+1057:          					for(c = 1 ; c != NDDIG ; c++)
+1058:          						if(ival < fdpowers[c])
+1059:          							break;
+1060:          					if(prec > NDDIG)
+1061:          						prec = NDDIG;
+1062:          					prec -= c;
+1063:          					ival = _dto64i((fval - _64itod(ival)) * scale(prec)+0.5);
+1064:          					// see how many zeros are at the end of the fractional part
+1065:          					while(prec && _mod64i10(ival) == 0) {
+1066:          						prec--;
+1067:          						ival = _div64(ival, fdpowers[1]);
+1068:          					}
+1069:          				}
+1070:          #endif	// GFMT
+1071:          				if(prec <= (int)NDDIG)
+1072:          					fval += fround(prec);
+1073:          				if(exp > (int)(NDDIG)-2) {
+1074:          					exp -= NDDIG-2;
+1075:          					ival = _divto64i(fval, scale(exp));
+1076:          					fval = 0.0;
+1077:          				} else {
+1078:          					ival = _dto64i(fval);
+1079:          					fval -= _64itod(ival);
+1080:          					exp = 0;
+1081:          				}
+1082:          				for(c = 1 ; c != NDDIG ; c++)
+1083:          					if(ival < fdpowers[c])
+1084:          						break;
+1085:          #else	// DOUBLE
+1086:          #ifdef	GFMT
+1087:          				if(flag & GFMT) {
+1088:          					if(exp < 0)	// fractional part only
+1089:          						prec -= (exp+1);
+1090:          					// count number of digits in the integral part (this is for %g)
+1091:          					val = (unsigned long)fval;
+1092:          					for(c = 0 ; c != NDDIG ; c++)
+1093:          						if(val < fdpowers[c])
+1094:          							break;
+1095:          					prec -= c;		// reduce precision by this
+1096:          					if(prec <= NDIG)
+1097:          						fval += fround(prec);
+1098:          					// get fractional part and count trailing zeros - reduce
+1099:          					// prec as required
+1100:          					{
+1101:          						double	temp;
+1102:          						temp = scale(prec);
+1103:          						temp *= fval - (double)val;
+1104:          						val = (unsigned long)temp;
+1105:          					}
+1106:          					while(prec && val % 10 == 0) {
+1107:          						val /= 10;
+1108:          						prec--;
+1109:          					}
+1110:          				} else
+1111:          #endif	//GFMT
+1112:          					if(prec <= NDIG)
+1113:          						fval += fround(prec);
+1114:          
+1115:          				/* ~4.2e9 is the largest float that will fit into a 32-bit long */
+1116:          				if((exp > 9)||(fval != 0 && (unsigned long)fval == 0 && exp > 1)) {
+1117:          					// fval is > 4.2e9
+1118:          					// new exp must be such that div_to_l() is < 4.2e9
+1119:          					// OLD CODE:	if(fval / scale(exp) < 4.294967296){
+1120:          					if(tmpval.integ < 4.294967296){
+1121:          						exp -= NDDIG-1;
+1122:          					}else{
+1123:          						exp -= NDDIG-2;
+1124:          					}
+1125:          					tmpval.integ = scale(exp);
+1126:          					val = div_to_l_(fval, tmpval.integ);
+1127:           					//val = _div_to_l_(integ, fval);
+1128:          					//val = (long)(integ * fval);	// fit as much signifigant data into the long as it can hold
+1129:          					fval = 0.0;	// There will be no fractional component
+1130:          				} else {
+1131:          					val = (unsigned long)fval;
+1132:          					fval -= (double)val;
+1133:          					exp = 0;
+1134:          				}
+1135:          				// count digits in integral part
+1136:          				for(c = 1 ; c != NDDIG ; c++)
+1137:          					if(val < fdpowers[c])
+1138:          						break;
+1139:          #endif	// DOUBLE
+1140:          #ifdef	WIDTH
+1141:          				// at this point, c contains the number of whole-number digits to print
+1142:          				width -= prec + c + exp;
+1143:          				if(
+1144:          #ifdef	ALTERN
+1145:          						flag & ALTERN ||
+1146:          #endif
+1147:          						prec)
+1148:          					width--;		// allow for decimal point
+1149:          				if(flag & NEGSIGN)
+1150:          					width--;
+1151:          #endif	// WIDTH
+1152:          #ifdef	FILL
+1153:          				if(flag & FILL) {
+1154:          #ifdef	MANSIGN
+1155:          					if(flag & MANSIGN)
+1156:          #else
+1157:          					if(flag & NEGSIGN)
+1158:          #endif	// MANSIGN
+1159:          						putsign();
+1160:          #if defined(MANSIGN) && defined(SPCSIGN)
+1161:          					else
+1162:          #endif
+1163:          #ifdef	SPCSIGN
+1164:          					if(flag & SPCSIGN)
+1165:          						pputc(' ');
+1166:          #endif	// SPCSIGN
+1167:          #ifdef	WIDTH
+1168:          					while(width > 0) {
+1169:          						pputc('0');
+1170:          						width--;
+1171:          					}
+1172:          #endif	// WIDTH
+1173:          				} else
+1174:          #endif	// FILL
+1175:          				{
+1176:          #ifdef	LEFT
+1177:          					if(!(flag & LEFT))
+1178:          #endif
+1179:          #ifdef	WIDTH
+1180:          					while(width > 0) {
+1181:          						pputc(' ');
+1182:          						width--;
+1183:          					}
+1184:          #endif	// WIDTH
+1185:          #ifdef	MANSIGN
+1186:          				if(flag & MANSIGN)
+1187:          #else
+1188:          				if(flag & NEGSIGN)
+1189:          #endif	// MANSIGN
+1190:          					putsign();
+1191:          #ifdef	SPCSIGN
+1192:          				else if(flag & SPCSIGN)
+1193:          					pputc(' ');
+1194:          #endif	// SPCSIGN
+1195:          			}
+1196:          			while(c--) {
+1197:          #if	DOUBLE
+1198:          				pputc('0' + _mod64i10(_div64(ival, fdpowers[c])));
+1199:          #else
+1200:          				{
+1201:          					tmpval.vd = val/dpowers[c];
+1202:          					tmpval.vd %= 10;
+1203:          					pputc('0' + tmpval.vd);
+1204:          				}
+1205:          #endif	// DOUBLE
+1206:          			}
+1207:          			while(exp > 0) {
+1208:          				pputc('0');
+1209:          				exp--;
+1210:          			}
+1211:          			if(prec > (int)(NDDIG-2))
+1212:          				c = NDDIG-2;
+1213:          			else
+1214:          				c = prec;
+1215:          			prec -= c;
+1216:          #ifdef	ALTERN
+1217:          			if(c || flag & ALTERN)
+1218:          #else
+1219:          			if(c)
+1220:          #endif
+1221:          				pputc('.');
+1222:          #if	DOUBLE
+1223:          			ival = _dto64i(fval * scale(c));
+1224:          			while(c)
+1225:          				pputc('0' + _mod64i10(_div64(ival, fdpowers[--c])));
+1226:          #else	// DOUBLE
+1227:          			val = (long)(fval * scale(c));
+1228:          			while(c--) {
+1229:          				tmpval.vd = val/dpowers[c];
+1230:          				tmpval.vd %= 10;
+1231:          				pputc('0' + tmpval.vd);
+1232:          				val %= dpowers[c];
+1233:          			}
+1234:          #endif	// DOUBLE
+1235:          			while(prec) {
+1236:          				pputc('0');
+1237:          				prec--;
+1238:          			}
+1239:          #ifdef	LEFT
+1240:          			if((flag & LEFT) && width > 0)
+1241:          				do
+1242:          					pputc(' ');
+1243:          				while(--width);
+1244:          #endif
+1245:          			continue;
+1246:          		}
+1247:          #endif	/* __FLOAT */
+1248:          
+1249:          #if	defined(TEN)
+1250:          #ifdef	BASEM
+1251:          		if((flag & BASEM) == TEN)
+1252:          #endif	//BASEM
+1253:          		{
+1254:          #ifdef	LONG
+1255:          			if(flag & LONG)
+1256:          				val = va_arg(ap, long);
+1257:          			else
+1258:          #endif	// LONG
+1259:          				val = (value)va_arg(ap, int);
+1260:          #ifdef	NEGSIGN
+1261:          			if((value)val < 0) {
+1262:          				flag |= NEGSIGN;
+1263:          				val = -val;
+1264:          			}
+1265:          #endif
+1266:          		}
+1267:          #ifdef	BASEM
+1268:          		else
+1269:          #endif
+1270:          #endif	// TEN
+1271:          
+1272:          #if	defined(EIGHT) || defined(SIXTEEN) || defined(UNSIGN)
+1273:          		{
+1274:          #ifdef	__LONG
+1275:          #if	defined(_PIC18) && defined(POINTER)
+1276:          			if(flag & POINTER)
+1277:          				val = (unsigned long)va_arg(ap, far char *);
+1278:          			else
+1279:          #endif
+1280:          #ifdef	LONG
+1281:          				if(flag & LONG)
+1282:          				val = va_arg(ap, unsigned long);
+1283:          			else
+1284:          #endif	// LONG
+1285:          #endif	// __LONG
+1286:          				val = va_arg(ap, unsigned);
+1287:          		}
+1288:          #endif	// EIGHT or SIXTEEN or UNSIGN
+1289:          #ifdef	PRECISION
+1290:          		if(prec == 0 && val == 0)
+1291:          			prec++;
+1292:          #endif
+1293:          #ifdef	MULTRAD
+1294:          		switch((unsigned char)(flag & BASEM)) {
+1295:          #endif
+1296:          #if	defined(TEN) || defined(UNSIGN)
+1297:          #ifdef	MULTRAD
+1298:          #ifdef	TEN
+1299:          		case TEN:
+1300:          #endif
+1301:          #ifdef	UNSIGN
+1302:          		case UNSIGN:
+1303:          #endif
+1304:          #endif	// MULTRAD
+1305:          			for(c = 1 ; c != sizeof dpowers/sizeof dpowers[0] ; c++)
+1306:          				if(val < dpowers[c])
+1307:          					break;
+1308:          #ifdef	MULTRAD
+1309:          			break;
+1310:          #endif
+1311:          #endif	// TEN || UNSIGN
+1312:          #ifdef	SIXTEEN
+1313:          #ifdef	MULTRAD
+1314:          		case SIXTEEN:
+1315:          #endif	// MULTRAD
+1316:          			for(c = 1 ; c != sizeof hexpowers/sizeof hexpowers[0] ; c++)
+1317:          				if(val < hexpowers[c])
+1318:          					break;
+1319:          #ifdef	MULTRAD
+1320:          			break;
+1321:          #endif
+1322:          #endif
+1323:          
+1324:          #ifdef	EIGHT
+1325:          #ifdef	MULTRAD
+1326:          		case EIGHT:
+1327:          #endif	// MULTRAD
+1328:          			for(c = 1 ; c != sizeof octpowers/sizeof octpowers[0] ; c++)
+1329:          				if(val < octpowers[c])
+1330:          					break;
+1331:          #ifdef	MULTRAD
+1332:          			break;
+1333:          #endif
+1334:          #endif
+1335:          #ifdef	MULTRAD
+1336:          		}
+1337:          #endif
+1338:          #ifdef	PRECISION
+1339:          		if(c < prec)
+1340:          			c = prec;
+1341:          		else if(prec < c)
+1342:          			prec = c;
+1343:          #endif
+1344:          #if	defined(WIDTH) && defined(NEGSIGN)
+1345:          		if(width && flag & NEGSIGN)
+1346:          			width--;
+1347:          #ifdef	PRECISION
+1348:          		if(flag & PRECISION) {
+1349:          			if(width > prec)
+1350:          				width -= prec;
+1351:          			else
+1352:          				width = 0;
+1353:          		}
+1354:          #endif
+1355:          #ifdef	ALTERN
+1356:          #ifdef	EIGHT
+1357:          		if((flag & (
+1358:          #ifdef	FILL
+1359:          						FILL|
+1360:          #endif
+1361:          							BASEM|ALTERN)) == (EIGHT|ALTERN)) {
+1362:          			if(width)
+1363:          				width--;
+1364:          		} else
+1365:          #endif	// EIGHT
+1366:          #if	defined(SIXTEEN)
+1367:          #ifdef	BASEM
+1368:          		if((flag & (BASEM|ALTERN)) == (SIXTEEN|ALTERN)) {
+1369:          #else
+1370:          		if(flag & ALTERN) {
+1371:          #endif
+1372:          			if(width > 2)
+1373:          				width -= 2;
+1374:          			else
+1375:          				width = 0;
+1376:          		}
+1377:          #endif	// SIXTEEN
+1378:          #endif	// ALTERN
+1379:          #endif	// WIDTH
+1380:          #ifdef	WIDTH
+1381:          		if(width > c)
+1382:          			width -= c;
+1383:          		else
+1384:          			width = 0;
+1385:          #endif
+1386:          #ifdef	FILL
+1387:          		if(flag & FILL) {
+1388:          #ifdef	MANSIGN
+1389:          			if(flag & MANSIGN)
+1390:          				putsign();
+1391:          #elif defined(NEGSIGN)
+1392:          			if(flag & NEGSIGN)
+1393:          				pputc('-');
+1394:          #endif
+1395:          #if defined(MANSIGN) || defined(NEGSIGN) && defined(SPCSIGN)
+1396:          			else
+1397:          #endif	// MANSIGN
+1398:          #ifdef	SPCSIGN
+1399:          			if(flag & SPCSIGN)
+1400:          				pputc(' ');
+1401:          #endif
+1402:          #if defined(ALTERN) && defined(SIXTEEN)
+1403:          			else if((flag & (BASEM|ALTERN)) == (SIXTEEN|ALTERN)) {
+1404:          				pputc('0');
+1405:          #if	defined(HEXUPCASE) && defined(HEXLOWCASE)
+1406:          				pputc(flag & UPCASE ? 'X' : 'x');
+1407:          #elif defined(HEXUPCASE)
+1408:          				pputc('X');
+1409:          #else
+1410:          				pputc('x');
+1411:          #endif	// HEXUPCASE
+1412:          			}
+1413:          #endif	// ALTERN
+1414:          #ifdef	WIDTH
+1415:          			if(width)
+1416:          				do
+1417:          					pputc('0');
+1418:          				while(--width);
+1419:          #endif	// WIDTH
+1420:          		} else
+1421:          #endif	//FILL
+1422:          		{
+1423:          #ifdef	WIDTH
+1424:          			if(width
+1425:          #ifdef	LEFT
+1426:          					&& !(flag & LEFT)
+1427:          #endif
+1428:          					)
+1429:          				do
+1430:          					pputc(' ');
+1431:          				while(--width);
+1432:          #endif	// WIDTH
+1433:          #ifdef	MANSIGN
+1434:          			if(flag & MANSIGN)
+1435:          				putsign();
+1436:          #else
+1437:          #ifdef	NEGSIGN
+1438:          			if(flag & NEGSIGN)
+1439:          				pputc('-');
+1440:          #endif
+1441:          #endif	// MANSIGN
+1442:          #ifdef	SPCSIGN
+1443:          			else if(flag & SPCSIGN)
+1444:          				pputc(' ');
+1445:          #endif
+1446:          #ifdef	ALTERN
+1447:          #ifdef	EIGHT
+1448:          			if((flag & (BASEM|ALTERN)) == (EIGHT|ALTERN))
+1449:          				pputc('0');
+1450:          			else
+1451:          #endif	// EIGHT
+1452:          #ifdef	SIXTEEN
+1453:          #ifdef	BASEM
+1454:          			if((flag & (BASEM|ALTERN)) == (SIXTEEN|ALTERN)) {
+1455:          #else
+1456:          			if(flag & ALTERN) {
+1457:          #endif
+1458:          				pputc('0');
+1459:          #if	defined(HEXUPCASE) && defined(HEXLOWCASE)
+1460:          				pputc(flag & UPCASE ? 'X' : 'x');
+1461:          #elif defined(HEXUPCASE)
+1462:          				pputc('X');
+1463:          #else
+1464:          				pputc('x');
+1465:          #endif
+1466:          			}
+1467:          #endif	// SIXTEEN
+1468:          #endif	// ALTERN
+1469:          		}
+1470:          #if	defined(SIXTEEN) || defined(TEN) || defined(EIGHT) || defined(UNSIGN)
+1471:          #ifndef	PRECISION
+1472:          		prec = c;
+1473:          #endif
+1474:          		while(prec--) {
+1475:          #ifdef	MULTRAD
+1476:          			switch((unsigned char)(flag & BASEM))
+1477:          #endif
+1478:          			{
+1479:          
+1480:          #if	defined(TEN) || defined(UNSIGN)
+1481:          #ifdef	MULTRAD
+1482:          #ifdef	TEN
+1483:          		case TEN:
+1484:          #endif
+1485:          #ifdef	UNSIGN
+1486:          		case UNSIGN:
+1487:          #endif
+1488:          #endif	// MULTRAD
+1489:          				c = (val / dpowers[prec]) % 10 + '0';
+1490:          #ifdef	MULTRAD
+1491:          				break;
+1492:          #endif
+1493:          #endif	// TEN || UNSIGN
+1494:          
+1495:          #ifdef	SIXTEEN
+1496:          #ifdef	MULTRAD
+1497:          			case SIXTEEN:
+1498:          #endif
+1499:          			{
+1500:          				unsigned char idx = (val / hexpowers[prec]) & 0xF;
+1501:          #if	defined(HEXLOWCASE) && defined(HEXUPCASE)
+1502:          				c = (flag & UPCASE ? "0123456789ABCDEF" : "0123456789abcdef")[idx];
+1503:          #elif	defined(HEXUPCASE)
+1504:          				c = "0123456789ABCDEF"[idx];
+1505:          #else
+1506:          				c = "0123456789abcdef"[idx];
+1507:          #endif	//HEXCASE
+1508:          			}
+1509:          #ifdef	MULTRAD
+1510:          				break;
+1511:          #endif
+1512:          #endif
+1513:          
+1514:          #ifdef	EIGHT
+1515:          #ifdef	MULTRAD
+1516:          			case EIGHT:
+1517:          #endif	// MULTRAD
+1518:          				c = ((val / octpowers[prec]) & 07) + '0';
+1519:          #ifdef	MULTRAD
+1520:          				break;
+1521:          #endif	// MULTRAD
+1522:          #endif	// EIGHT
+1523:          			}
+1524:          			pputc(c);
+1525:          		}
+1526:          #endif	// 16 or 10 or 8
+1527:          #ifdef	LEFT
+1528:          		if((flag & LEFT) && width > 0)
+1529:          			do
+1530:          				pputc(' ');
+1531:          			while(--width);
+1532:          #endif	// LEFT
+1533:          	}
+06A6  C001     MOVFF __pcstackCOMRAM, TBLPTR
+06A8  FFF6     NOP
+06AA  C002     MOVFF 0x2, TBLPTRH
+06AC  FFF7     NOP
+06AE  4A01     INFSNZ __pcstackCOMRAM, F, ACCESS
+06B0  2A02     INCF 0x2, F, ACCESS
+06B2  0008     TBLRD*
+06B4  CFF5     MOVFF TABLAT, c
+06B6  F005     NOP
+06B8  5005     MOVF c, W, ACCESS
+06BA  B4D8     BTFSC STATUS, 2, ACCESS
+06BC  0012     RETURN 0
+06BE  D7F0     BRA 0x6A0
+1534:          #ifdef	ANYFORMAT
+1535:          alldone:
+1536:          #endif	// ANYFORMAT
+1537:          #if	!defined(PRINTF) && (defined(SPRINTF) || defined(VSPRINTF))
+1538:          	*sp = 0;
+1539:          #endif
+1540:          	return ccnt;
+1541:          }
+1542:          

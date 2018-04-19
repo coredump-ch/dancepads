@@ -18,6 +18,7 @@
 #include "rgbled.h"
 #include "piezo.h"
 #include "hsi_rgb.h"
+#include "spimaster.h"
 #include <xc.h>
 
 void main(void) {
@@ -27,22 +28,22 @@ void main(void) {
     //Initialize Dancepad
     init_oscillator();
     init_lifeled();
-    init_rgbled();
-    init_piezo();
+//    init_rgbled();
+//    init_piezo();
+    init_spimaster();
+    init_spislave();
     
     //Infinite loop of the programm
     while(1)
     {
-        blink_lifeled();
-        touch = read_piezo();
-/*       __delay_ms(1);
-        touch ++;
-        if (touch == 1536)
-        {
-            touch = 0;
-        }*/
-        color = hsi_rgb(touch);
-        set_rgbled(color[0], color[1], color[2]);
+//        blink_lifeled();
+        blink_spiled();
+//        touch = read_piezo();
 
+        
+//        color = hsi_rgb(touch);
+//        set_rgbled(color[0], color[1], color[2]);
+
+//        printf("end of loop");
     }
  }

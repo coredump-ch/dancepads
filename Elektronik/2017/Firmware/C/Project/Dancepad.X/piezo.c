@@ -16,20 +16,20 @@ void init_piezo()
     ADCON1 = 0x00;
     
     //Set ADC as inputs
-    TRISAbits.RA0 = 0;
-    ANSELAbits.ANSA0 = 0;
+    TRISAbits.RA0 = 1;
+    ANSELAbits.ANSA0 = 1;
     
     //Set ADC as inputs
-    TRISAbits.RA1 = 0;
-    ANSELAbits.ANSA1 = 0;
+    TRISAbits.RA1 = 1;
+    ANSELAbits.ANSA1 = 1;
     
     //Set ADC as inputs
-    TRISAbits.RA2 = 0;
-    ANSELAbits.ANSA2 = 0;
+    TRISAbits.RA2 = 1;
+    ANSELAbits.ANSA2 = 1;
     
     //Set ADC as inputs
-    TRISAbits.RA3 = 0;
-    ANSELAbits.ANSA3 = 0;
+    TRISAbits.RA3 = 1;
+    ANSELAbits.ANSA3 = 1;
 }
 
 unsigned int adc_convert(unsigned char ch)

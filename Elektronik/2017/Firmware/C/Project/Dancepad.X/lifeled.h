@@ -14,4 +14,7 @@ void init_lifeled();
 //Blink life LED subroutine
 void blink_lifeled();
 
+//Blink SPI LED subroutine
+void blink_spiled();
+
 #endif
