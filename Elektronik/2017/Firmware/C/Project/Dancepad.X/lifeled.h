@@ -13,8 +13,11 @@ void init_lifeled();
 
 //Blink life LED subroutine
 void blink_lifeled();
-
+/*
+//Blink life LED interrupt
+void high_priority interrupt interrupt_lifeled();
+*/
 //Blink SPI LED subroutine
-void blink_spiled();
+void blink_spiled(unsigned char dir, unsigned int freq);
 
 #endif

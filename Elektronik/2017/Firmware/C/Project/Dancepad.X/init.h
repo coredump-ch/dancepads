@@ -10,7 +10,6 @@
 
 //Configure processor
 
-
 //CONFIG1H
 //--------
 //Oscillator Selection bits->Internal oscillator block
@@ -148,8 +147,10 @@
 
 //Define subroutines
 
-//Init oscillator subrutine
+//Init oscillator subroutine
 void init_oscillator();
 
+//Init direction of connection subroutine
+unsigned char init_direction();
 
 #endif

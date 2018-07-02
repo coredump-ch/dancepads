@@ -8,10 +8,10 @@
 #ifndef RGBLED_H
 #define	RGBLED_H
  
-// Init RGB LED subroutine
+//Init RGB LED subroutine
 void init_rgbled();
 
-// Blink RGB LED subroutine
+//Blink RGB LED subroutine
 void set_rgbled(int r, int g, int b);
 
 #endif

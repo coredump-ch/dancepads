@@ -6,7 +6,8 @@
  */
 
 #include <xc.h>
-#include "spimaster.h"
+#include "spi.h"
+#include "dancepad.h"
 
 void init_lifeled()
 {
@@ -14,6 +15,7 @@ void init_lifeled()
     PORTAbits.RA4 = 0;
     LATAbits.LA4 = 0;
     TRISAbits.RA4 = 0;
+
 }
 
 void blink_lifeled()
@@ -27,13 +29,19 @@ void blink_lifeled()
         i = 0;
     }
 }
-
-void blink_spiled()
+/*
+//Blink life LED interrupt
+void high_priority interrupt interrupt_lifeled()
+{
+    
+}
+*/
+void blink_spiled(unsigned char dir, unsigned int freq)
 {
     static unsigned int i, j, a = 0, rec_spiled;
     //Blink LED after each second
     i++;
-    if (i >= 100)
+    if (i >= 1000)
     {
         if (a == 1)
         {
@@ -48,30 +56,45 @@ void blink_spiled()
         i = 0;
     }
     
-    rec_spiled = 0;
-    rec_spiled = rec_spislave();
-    
-    if (rec_spiled == 85)
+    //Falls nicht der Master oder Fehler
+    if (dir == dir_right || dir == dir_straight || dir == dir_left)
     {
-        PORTAbits.RA4 = 1;
-    }
-    else
-    {
-        if (rec_spiled == 170)
+        rec_spiled = 0;
+        rec_spiled = rec_spislave(0);
+
+        if (rec_spiled == 85)
         {
-            PORTAbits.RA4 = 0;
+            PORTAbits.RA4 = 1;
         }
         else
         {
-            if (rec_spiled == 0)
+            if (rec_spiled == 170)
             {
-                j++;
-                if (j >= 500)
-                {
-                    PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
-                    j = 0;
-                }
+                PORTAbits.RA4 = 0;
             }
+            else
+            {
+    /*            if (rec_spiled == 0)
+                {
+                    j++;
+                    if (j >= 500)
+                    {
+                        PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+                        j = 0;
+                    }
+                }*/
+            }
+        }
+    }
+    
+    //Wenn es der Master ist
+    if (dir == dir_master)
+    {
+        j++;
+        if (j >= freq)
+        {
+            PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+            j = 0;
         }
     }
 }
