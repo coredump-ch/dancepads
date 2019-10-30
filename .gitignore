@@ -34,3 +34,7 @@ project.xml
 *.production.*
 memoryfile.xml
 *.properties
+
+# Build Files
+*.i
+

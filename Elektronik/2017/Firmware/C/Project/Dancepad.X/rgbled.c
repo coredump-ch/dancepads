@@ -48,13 +48,13 @@ void set_rgbled(int r, int g, int b)
     CCPR2L = (unsigned int) (brightness >> 2);
     
     //Set green LED PWM
-    int brightness = g;
+    brightness = g;
     CCP3CONbits.DC3B0 = (unsigned int) brightness & 1;
     CCP3CONbits.DC3B1 = (unsigned int) (brightness >> 1) & 1; 
     CCPR3L = (unsigned int) (brightness >> 2);      
     
     //Set blue LED PWM
-    int brightness = b;
+    brightness = b;
     CCP1CONbits.DC1B0 = (unsigned int) brightness & 1; 
     CCP1CONbits.DC1B1 = (unsigned int) (brightness >> 1) & 1; 
     CCPR1L = (unsigned int) (brightness >> 2); 

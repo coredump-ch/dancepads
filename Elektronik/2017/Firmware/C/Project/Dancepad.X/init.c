@@ -6,7 +6,7 @@
  */
 
 #define _XTAL_FREQ  64000000
-#include <p18f23k22.h>
+#include <xc.h>
 #include "dancepad.h"
 
 void init_oscillator()

@@ -7,6 +7,7 @@
 
 #include <xc.h>
 #include "spi.h"
+#include "i2c.h"
 #include "dancepad.h"
 
 void init_lifeled()
@@ -38,7 +39,7 @@ void high_priority interrupt interrupt_lifeled()
 */
 void blink_spiled(unsigned char dir, unsigned int freq)
 {
-    static unsigned int i, j, a = 0, rec_spiled;
+    static unsigned int i, j, a = 0, mul = 0, rec_spiled;
     //Blink LED after each second
     i++;
     if (i >= 1000)
@@ -91,10 +92,15 @@ void blink_spiled(unsigned char dir, unsigned int freq)
     if (dir == dir_master)
     {
         j++;
-        if (j >= freq)
+        mul = get_i2c_data();
+        if (j >= mul*freq)
         {
             PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
             j = 0;
         }
+/*      if (mul == 2)
+        {
+            PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+        }*/
     }
 }

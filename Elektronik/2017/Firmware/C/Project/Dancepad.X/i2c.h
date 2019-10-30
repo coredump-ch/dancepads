@@ -15,8 +15,10 @@ void init_i2cslave();
 void send_i2c(unsigned char data);
 
 //Receive I2C subroutine
-unsigned char interrupt rec_i2c(unsigned char data);
-//unsigned char rec_i2c(unsigned char data);
+void __interrupt () rec_i2c(unsigned char data);
+
+//Get data from I2C subroutine
+unsigned char get_i2c_data();
 
 /*
 * For PIC18 devices the high interrupt vector is found at
