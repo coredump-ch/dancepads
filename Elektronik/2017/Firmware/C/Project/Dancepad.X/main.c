@@ -24,6 +24,7 @@
 void main(void) {
     unsigned int touch = 0, freq = 1000;
     int* color = 0;
+    int i = 0;
     unsigned char dir = 0;
     
     //Initialize Dancepad
@@ -44,11 +45,13 @@ void main(void) {
     
     //Infinite loop of the programm
     while(1)
-    {        
+    {   
         blink_spiled(dir, freq);
         touch = read_piezo();
         
         color = hsi_rgb(touch);
         set_rgbled(color[0], color[1], color[2]);
+        send_i2c_data(i);
+        i++;
     }
  }

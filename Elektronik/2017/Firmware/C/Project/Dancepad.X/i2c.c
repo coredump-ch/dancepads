@@ -1,5 +1,5 @@
 /* 
- * File:   i2c.c
+ * File:   i2c.c (USB interface)
  * Author: astoc
  *
  * Created on 19. April 2018, 17:29
@@ -9,11 +9,13 @@
 #include "i2c.h"
 
 // Global variable
-static unsigned char i2c_read_data;
+static unsigned char i2c_receive_data;
+static unsigned char i2c_transmit_data;
+static unsigned char address;
 
 void init_i2cslave()
 {
-    //Set TRIS bits of I2C slave
+    //Set TRIS bits of I2C (USB) slave
     TRISCbits.TRISC3 = 1;       //SCL1
     TRISCbits.TRISC4 = 1;       //SDA1
     
@@ -41,13 +43,41 @@ void init_i2cslave()
 
 void __interrupt () rec_i2c(unsigned char data)
 {
-    if (!SSP1STATbits.R_NOT_W) {    // Daten empfangen
-        while (!SSP1STATbits.P)
+    if(PIR1bits.SSPIF)
+    {
+        PIR1bits.SSPIF  = 0;
+        if (SSP1STATbits.BF) 
         {
-            if (PIR1bits.SSP1IF) {
-                PIR1bits.SSPIF  = 0;
-                if (SSP1STATbits.BF) {
-                    i2c_read_data = SSP1BUF;
+            address = SSP1BUF;
+            if (!SSP1STATbits.R_NOT_W)      // Read Data from I2C (USB)
+            {
+                while (SSP1STATbits.S)
+                {
+                    if(PIR1bits.SSPIF)
+                    {
+                        PIR1bits.SSPIF  = 0;
+                        if (SSP1STATbits.BF) 
+                        {
+                            i2c_receive_data = SSP1BUF;
+                        }
+                    }
+                }
+            }
+            else if (SSP1STATbits.R_NOT_W)      // Write Data from I2C (USB)
+            {
+                while (SSP1STATbits.S)
+                {
+                    if (!SSP1CON2bits.ACKSTAT)
+                    {
+                        SSP1BUF = i2c_transmit_data;
+                        i2c_transmit_data = 0;
+                        
+                        SSP1CON1bits.CKP = 1;
+                        while(!PIR1bits.SSPIF)
+                        {
+                        }
+                        PIR1bits.SSPIF  = 0;
+                    }
                 }
             }
         }
@@ -56,7 +86,18 @@ void __interrupt () rec_i2c(unsigned char data)
         
  
 unsigned char get_i2c_data()
+{    
+    return(i2c_receive_data);
+}
+
+int send_i2c_data(unsigned char data)
 {
-    return(i2c_read_data);
-    i2c_read_data = 0;
+    if (i2c_transmit_data == 0)
+    {
+        i2c_transmit_data = data;
+    }
+    else
+    {
+        return(-1);
+    }
 }

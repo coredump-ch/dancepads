@@ -8,17 +8,17 @@
 #ifndef I2C_H
 #define	I2C_H
 
-//Init I2C slave subroutine
+//Init I2C (USB) slave subroutine
 void init_i2cslave();
 
-//Send I2C subroutine
-void send_i2c(unsigned char data);
-
-//Receive I2C subroutine
+//Receive I2C (USB) subroutine
 void __interrupt () rec_i2c(unsigned char data);
 
-//Get data from I2C subroutine
+//Get data from I2C (USB) subroutine
 unsigned char get_i2c_data();
+
+//Send data to I2C (USB) subroutine
+int send_i2c_data(unsigned char data);
 
 /*
 * For PIC18 devices the high interrupt vector is found at
