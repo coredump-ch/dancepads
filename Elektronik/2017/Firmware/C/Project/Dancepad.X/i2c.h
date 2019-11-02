@@ -8,6 +8,8 @@
 #ifndef I2C_H
 #define	I2C_H
 
+#define I2CDATASIZE 8
+
 //Init I2C (USB) slave subroutine
 void init_i2cslave();
 

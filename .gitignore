@@ -52,3 +52,4 @@ Visual Studio automatic generated files
 *.idb
 *.pdb
 *.ilk
+*.new.obj.enc

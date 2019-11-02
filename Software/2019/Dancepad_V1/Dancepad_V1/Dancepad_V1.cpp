@@ -20,6 +20,14 @@ int main() {
 	bool FirstRun = FALSE;
 	int error = 0;
 
+	unsigned char Data[8];
+	for (int i = 0; i < 8; i++)
+	{
+		Data[i] = 0;
+	}
+	Data[0] = 1;
+//	unsigned char* Data = &DataValue;
+
 	if (FirstRun)
 	{
 		error = SetProductDescription(ProdDescrip);
@@ -31,11 +39,17 @@ int main() {
 
 	handle = InitUsbComm(ProdDescrip);
 
+	error = TransmitUsbData(handle, &Data[0]);
+
+	error = ReceiveUsbData(handle, Data);
+
 	error = CloseUsbComm(handle);
 	if (error != 0)
 	{
 		cout << "Device not successfully closed " << error << endl;
 	}
+
+	wcout << "Read Data: " << *Data << " has following error: " << error << endl;
 
 	cout << "Muahaha, I've done it" << endl;
 	return 0;

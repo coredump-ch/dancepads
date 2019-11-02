@@ -51,7 +51,6 @@ void main(void) {
         
         color = hsi_rgb(touch);
         set_rgbled(color[0], color[1], color[2]);
-        send_i2c_data(i);
-        i++;
+        send_i2c_data(get_i2c_data());
     }
  }

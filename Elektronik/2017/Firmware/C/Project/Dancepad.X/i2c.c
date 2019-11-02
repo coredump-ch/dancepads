@@ -92,12 +92,12 @@ unsigned char get_i2c_data()
 
 int send_i2c_data(unsigned char data)
 {
-    if (i2c_transmit_data == 0)
-    {
+//    if (i2c_transmit_data == 0)
+//    {
         i2c_transmit_data = data;
-    }
-    else
-    {
+//    }
+//    else
+//    {
         return(-1);
-    }
+ //   }
 }

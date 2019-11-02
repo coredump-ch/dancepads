@@ -33,37 +33,23 @@ void* InitUsbComm(wchar_t NomProdDescrip[30])
 	{
 		cout << "No MCP2221 devices connected" << endl;
 	}
-	else
-	{
-		cout << "Number of devices found: " << NumOfDev << endl;
-	}
 
 	for (unsigned int i = 0; i <= (NumOfDev - 1); i++)
 	{
 		//Open first MCP2221 device discovered by index
 		conn = Mcp2221_OpenByIndex(VID, PID, i);
 		error = Mcp2221_GetLastError();
-		if (error == NULL)
-		{
-			cout << "Connection successful" << endl;
-		}
-		else
+		if (error != NULL)
 		{
 			cout << "Error message is " << error << endl;
 		}
 
 		//Get product descriptor
 		flag = Mcp2221_GetProductDescriptor(conn, ActProdDescrip);
-		if (flag == 0)
-		{
-			wcout << "Product descriptor: " << ActProdDescrip << endl;
-		}
-		else
+		if (flag != 0)
 		{
 			cout << "Error getting product descriptor: " << flag << endl;
 		}
-
-		wcout << "Actual Product descriptor: " << ActProdDescrip << ", Nominal Product descriptor: " << NomProdDescrip << ", Compare: " << wcscmp(ActProdDescrip, NomProdDescrip) << endl;
 
 		//Check if correct handle is opened
 		if (0 == wcscmp(ActProdDescrip, NomProdDescrip))
@@ -161,7 +147,7 @@ int CloseUsbComm(void* conn)
 	flag = Mcp2221_Close(conn);
 	if (flag == 0)
 	{
-		cout << "Connection finally closing successful" << endl;
+		cout << "USB Communication closed successful" << endl;
 		return(0);
 	}
 	else
@@ -169,4 +155,31 @@ int CloseUsbComm(void* conn)
 		cout << "Error message is " << flag << endl;
 		return(-1);
 	}
+}
+
+
+int TransmitUsbData(void* conn, unsigned char* I2cTxData)
+{
+	int flag = 0;
+
+	flag = Mcp2221_I2cWrite(conn, 1, 0xA, 1, I2cTxData);
+	if (flag != 0)
+	{
+		cout << "Data haven't been written correctly. Errorcode: " << flag << endl;
+		return(-1);
+	}
+	return(0);
+}
+
+int ReceiveUsbData(void* conn, unsigned char* I2cRxData)
+{
+	int flag = 0;
+
+	flag = Mcp2221_I2cRead(conn, 8, 0xA, 1, I2cRxData);
+	if (flag != 0)
+	{
+		cout << "Data haven't been read correctly. Errorcode: " << flag << endl;
+		return(-1);
+	}
+	return(0);	
 }
