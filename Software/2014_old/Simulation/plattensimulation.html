@@ -1,0 +1,104 @@
+<html>
+<head><title>Test</title>
+</head>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<style type="text/css">
+.row {
+	clear: both;
+}
+.cell {
+	float: left;
+	border: 1px solid grey;
+	height: 25px;
+	width: 25px;
+	margin-left: -1px;
+	margin-top: -1px;
+}
+.cell:hover {
+	cursor: pointer;
+}
+.on {
+	background-color: red;
+}
+.off {
+     background-color: white;
+     -webkit-transition: background-color 1000ms linear;
+     -moz-transition: background-color 1000ms linear;
+     -o-transition: background-color 1000ms linear;
+     -ms-transition: background-color 1000ms linear;
+     transition: background-color 1000ms linear;
+}
+</style>
+<body>
+
+<p>
+Count X<input type="text" id="gridX" value="5"/>
+Count Y<input type="text" id="gridY" value="5"/>
+<input type="button" value="Create Grid" id="createGridButton"/>
+</p>
+<p>
+To Pad Delay [ms]<input type="text" id="toPadDelay" value="10"/>
+From Pad Delay [ms]<input type="text" id="fromPadDelay" value="10"/>
+</p>
+
+<div id="container">
+
+</div>
+
+<script>
+function createGrid(xMax,yMax) {
+	var el = $('#container');
+	el.empty();
+	
+	// indicate pad pressure
+	function indicatePressure(padId) {
+		var coords = padId.split("-");
+		var diffX = xMax - coords[1];
+		var diffY = yMax - coords[2];
+		var delay = $('#fromPadDelay').val();
+		setTimeout(function(){ 
+			enableLights(coords[1],coords[2]); 
+		}, diffX*diffY*delay);
+	}
+	
+	// send command back
+	function enableLights(padX,padY) {
+		var diffX = padX;
+		var diffY = padY;
+		var delay = $('#toPadDelay').val();
+		var el = $('#cell-'+padX+'-'+padY);
+		setTimeout(function(){ 
+			el.addClass('on');
+			//el.addClass('off');
+		}, diffX*diffY*delay);
+	}
+	
+	// create pads
+	for(var x=0; x<xMax; x++) {
+		var row = $('<div/>', { 
+			'id': 'row-'+x,
+			'class': 'row'
+		});
+		for(var y=0; y<yMax; y++) {
+			var cell = $('<div/>', { 
+				'id': 'cell-'+x+'-'+y,
+				'class': 'cell'
+			});
+			cell.click(function(){
+				indicatePressure(this.id);
+			});
+			row.append(cell);
+		}
+		el.append(row);
+	}
+}
+
+$(document).ready(function(){
+    $("#createGridButton").click(function(){
+        createGrid($('#gridX').val(), $('#gridY').val());
+    });
+});
+</script>
+
+</body>
+</html>

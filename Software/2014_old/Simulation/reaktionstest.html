@@ -1,0 +1,18 @@
+<html>
+<head><title>Test</title>
+</head>
+<body>
+
+<script>
+function doX()
+{
+	var timeValue = document.getElementById("timeValue").value;
+	setInterval(function(){document.writeln("X ");}, timeValue);
+}
+</script>
+
+<input type="text" value="300" id="timeValue"/>
+<input type="button" value="Test" onclick="doX();"/>
+
+</body>
+</html>

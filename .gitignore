@@ -38,3 +38,17 @@ memoryfile.xml
 # Build Files
 *.i
 
+Visual Studio automatic generated files
+*.tlog
+*.suo
+*.db
+*.opendb
+*.ipch
+*.sln
+*.filters
+*.user
+*.log
+*.obj
+*.idb
+*.pdb
+*.ilk
