@@ -152,9 +152,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Dancepad_V1.cpp" />
+    <ClCompile Include="USB_Communication.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mcp2221_dll_um.h" />
+    <ClInclude Include="USB_Communication.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="mcp2221_dll_um_x64.dll" />

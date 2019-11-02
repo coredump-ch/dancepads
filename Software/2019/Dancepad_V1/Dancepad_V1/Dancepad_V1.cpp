@@ -8,25 +8,35 @@
 #include <iostream>
 #include <Windows.h>
 #include "mcp2221_dll_um.h"
+#include "USB_Communication.h"
 
 using namespace std;
 
+//Global variables
+void* handle;
+
 int main() {
-	wchar_t LibVer[6];
-	int ver = 0;
+	wchar_t ProdDescrip[30] = L"Dancepad_Master";
+	bool FirstRun = FALSE;
 	int error = 0;
 
-	ver = Mcp2221_GetLibraryVersion(LibVer);  //Get DLL version
-	if (ver == 0)
+	if (FirstRun)
 	{
-		cout << "Library (DLL) version: " << LibVer << endl;
-	}
-	else
-	{
-		error = Mcp2221_GetLastError();
-		cout << "Version can't be found, version: " << ver << ", error: " << error << endl;
+		error = SetProductDescription(ProdDescrip);
+		if (error != 0)
+		{
+			cout << "Product Description not written successfull" << endl;
+		}
 	}
 
-	cout << "Muahaha, I've done it" << endl; // prints !!!Hello World!!!
+	handle = InitUsbComm(ProdDescrip);
+
+	error = CloseUsbComm(handle);
+	if (error != 0)
+	{
+		cout << "Device not successfully closed " << error << endl;
+	}
+
+	cout << "Muahaha, I've done it" << endl;
 	return 0;
 }
