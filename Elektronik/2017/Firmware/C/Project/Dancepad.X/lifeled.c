@@ -92,8 +92,7 @@ void blink_spiled(unsigned char dir, unsigned int freq)
     if (dir == dir_master)
     {
         j++;
-        mul = get_i2c_data();
-        if (j >= mul*freq)
+        if (j >= freq)
         {
             PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
             j = 0;

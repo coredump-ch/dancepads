@@ -24,10 +24,12 @@
 void main(void) {
     unsigned int touch = 0, freq = 1000;
     int* color = 0;
-    int i = 0;
     unsigned char dir = 0;
-    unsigned char arr[I2CDATASIZE] = { 1, 2, 3, 4, 5, 6, 7, 8};     // Array just temporarily needed
     int i2cTxBufEmpty = TRANSMITTED;
+    int i2cRxBufEmpty = NOTRECEIVED;
+    unsigned char arr[I2CDATASIZE] = {1,2,3,4,5,6,7,8};
+    unsigned char val[I2CDATASIZE] = {1,2,3,4,5,6,7,8};
+    unsigned char mul = 2;
     
     //Initialize Dancepad
     init_oscillator();
@@ -48,18 +50,18 @@ void main(void) {
     //Infinite loop of the programm
     while(1)
     {   
-        blink_spiled(dir, freq);
+        blink_spiled(dir, freq*mul);
         touch = read_piezo();
         
         color = hsi_rgb(touch);
         set_rgbled(color[0], color[1], color[2]);
-        arr[0] = 1;     // Array allocation just temporarily
-        arr[1] = 2;
-        arr[2] = 3;
-        arr[3] = 4;
-        arr[4] = 5;
-        arr[5] = 6;
-        arr[6] = 7;
+        
+        i2cRxBufEmpty = get_i2c_data(val);
+        mul = val[0];
+        for (int i = 0; i < I2CDATASIZE; i++)
+        {
+            arr[i] = val[i];
+        }
         i2cTxBufEmpty = send_i2c_data(arr);
     }
  }

@@ -9,9 +9,10 @@
 #include "i2c.h"
 
 // Global variable
-static unsigned char i2c_receive_data;
+static unsigned char i2c_receive_data[I2CDATASIZE];
 static unsigned char* i2c_transmit_data;
 static unsigned int transmitStatus;
+static unsigned int receiveStatus;
 static unsigned char address;
 
 void init_i2cslave()
@@ -41,6 +42,7 @@ void init_i2cslave()
     SSP1CON3bits.PCIE=1;        //Stop Condition Interrupt Enable bit
     
     transmitStatus = TRANSMITTED;
+    receiveStatus = NOTRECEIVED;
 }
 
 
@@ -56,6 +58,7 @@ void __interrupt () rec_i2c(unsigned char data)
             address = SSP1BUF;
             if (!SSP1STATbits.R_NOT_W)      // Read Data from I2C (USB)
             {
+                receiveStatus = RECEIVING;
                 while (SSP1STATbits.S)
                 {
                     if(PIR1bits.SSPIF)
@@ -63,10 +66,13 @@ void __interrupt () rec_i2c(unsigned char data)
                         PIR1bits.SSPIF  = 0;
                         if (SSP1STATbits.BF) 
                         {
-                            i2c_receive_data = SSP1BUF;
+                            i2c_receive_data[i] = SSP1BUF;
+                            
+                            i++;
                         }
                     }
                 }
+                receiveStatus = RECEIVED;
             }
             else if (SSP1STATbits.R_NOT_W)      // Write Data from I2C (USB)
             {
@@ -94,9 +100,17 @@ void __interrupt () rec_i2c(unsigned char data)
 }
         
  
-unsigned char get_i2c_data()
+int get_i2c_data(unsigned char* data)
 {    
-    return(i2c_receive_data);
+    if (receiveStatus == RECEIVED)
+    {
+        for (int i = 0; i < I2CDATASIZE; i++)
+        {
+            data[i] = i2c_receive_data[i];
+        }
+        receiveStatus = NOTRECEIVED;
+    }
+    return(receiveStatus);
 }
 
 int send_i2c_data(unsigned char* data)

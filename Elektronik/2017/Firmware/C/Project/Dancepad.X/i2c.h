@@ -14,6 +14,10 @@
 #define TRANSMITTING 1
 #define TRANSMITTED 2
 
+#define NOTRECEIVED 0
+#define RECEIVING 1
+#define RECEIVED 2
+
 //Init I2C (USB) slave subroutine
 void init_i2cslave();
 
@@ -21,7 +25,7 @@ void init_i2cslave();
 void __interrupt () rec_i2c(unsigned char data);
 
 //Get data from I2C (USB) subroutine
-unsigned char get_i2c_data();
+int get_i2c_data(unsigned char* data);
 
 //Send data to I2C (USB) subroutine
 int send_i2c_data(unsigned char* data);

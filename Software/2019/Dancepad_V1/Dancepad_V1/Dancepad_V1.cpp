@@ -23,9 +23,9 @@ int main() {
 	unsigned char Data[USBDATASIZE];
 	for (int i = 0; i < USBDATASIZE; i++)
 	{
-		Data[i] = 0;
+		Data[i] = 2+i;
 	}
-	Data[0] = 1;
+
 //	unsigned char* Data = &DataValue;
 
 	if (FirstRun)
@@ -39,7 +39,7 @@ int main() {
 
 	handle = InitUsbComm(ProdDescrip);
 
-	error = TransmitUsbData(handle, &Data[0]);
+	error = TransmitUsbData(handle, Data);
 
 	error = ReceiveUsbData(handle, Data);
 

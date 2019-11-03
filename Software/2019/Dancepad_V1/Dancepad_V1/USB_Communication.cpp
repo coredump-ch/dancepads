@@ -162,7 +162,7 @@ int TransmitUsbData(void* conn, unsigned char* I2cTxData)
 {
 	int flag = 0;
 
-	flag = Mcp2221_I2cWrite(conn, 1, 0xA, 1, I2cTxData);
+	flag = Mcp2221_I2cWrite(conn, USBDATASIZE, 0xA, 1, I2cTxData);
 	if (flag != 0)
 	{
 		cout << "Data haven't been written correctly. Errorcode: " << flag << endl;
