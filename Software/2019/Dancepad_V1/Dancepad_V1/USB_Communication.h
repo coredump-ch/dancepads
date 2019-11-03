@@ -12,7 +12,6 @@
 
 #define USBDATASIZE 8
 
-
 //Init USB Communication
 void* InitUsbComm(wchar_t NewProdDescrip[30]);
 

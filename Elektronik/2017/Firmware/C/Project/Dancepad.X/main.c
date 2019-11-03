@@ -27,8 +27,8 @@ void main(void) {
     unsigned char dir = 0;
     int i2cTxBufEmpty = TRANSMITTED;
     int i2cRxBufEmpty = NOTRECEIVED;
-    unsigned char arr[I2CDATASIZE] = {1,2,3,4,5,6,7,8};
-    unsigned char val[I2CDATASIZE] = {1,2,3,4,5,6,7,8};
+    unsigned char arr[I2CDATASIZE] = {0};
+    unsigned char val[I2CDATASIZE] = {0};
     unsigned char mul = 2;
     
     //Initialize Dancepad
@@ -50,18 +50,27 @@ void main(void) {
     //Infinite loop of the programm
     while(1)
     {   
-        blink_spiled(dir, freq*mul);
-        touch = read_piezo();
-        
-        color = hsi_rgb(touch);
-        set_rgbled(color[0], color[1], color[2]);
-        
         i2cRxBufEmpty = get_i2c_data(val);
         mul = val[0];
+        
         for (int i = 0; i < I2CDATASIZE; i++)
         {
             arr[i] = val[i];
         }
+        
+        if (arr[0] == 1)
+        {
+          set_rgbled(arr[1], arr[2], arr[3]);  
+        }
+        else
+        {
+            blink_spiled(dir, freq*mul);
+            touch = read_piezo();
+
+            color = hsi_rgb(touch);
+            set_rgbled(color[0], color[1], color[2]);
+        }
+        
         i2cTxBufEmpty = send_i2c_data(arr);
     }
  }

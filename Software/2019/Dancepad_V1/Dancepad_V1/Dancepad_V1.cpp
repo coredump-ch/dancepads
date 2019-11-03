@@ -9,6 +9,8 @@
 #include <Windows.h>
 #include "mcp2221_dll_um.h"
 #include "USB_Communication.h"
+#include "DP_Communication.h"
+#include "hsi.h"
 
 using namespace std;
 
@@ -19,6 +21,7 @@ int main() {
 	wchar_t ProdDescrip[30] = L"Dancepad_Master";
 	bool FirstRun = FALSE;
 	int error = 0;
+	RGB rgbColor;
 
 	unsigned char Data[USBDATASIZE];
 	for (int i = 0; i < USBDATASIZE; i++)
@@ -26,7 +29,6 @@ int main() {
 		Data[i] = 2+i;
 	}
 
-//	unsigned char* Data = &DataValue;
 
 	if (FirstRun)
 	{
@@ -39,17 +41,26 @@ int main() {
 
 	handle = InitUsbComm(ProdDescrip);
 
-	error = TransmitUsbData(handle, Data);
+	while (1)
+	{
+		for (float hue = 0; hue < 360; hue++)
+		{
+			rgbColor = hsi2rgb(hue, 0.5, 0.5);
 
-	error = ReceiveUsbData(handle, Data);
+			//	error = TransmitUsbData(handle, Data);
+			error = SetRgbColor(handle, rgbColor.r, rgbColor.g, rgbColor.b);
 
+			error = ReceiveUsbData(handle, Data);
+
+			wcout << "Read Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
+		}
+}
 	error = CloseUsbComm(handle);
 	if (error != 0)
 	{
 		cout << "Device not successfully closed " << error << endl;
 	}
 
-	wcout << "Read Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
 
 	cout << "Muahaha, I've done it" << endl;
 	return 0;
