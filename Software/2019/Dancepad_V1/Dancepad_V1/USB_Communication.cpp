@@ -175,7 +175,7 @@ int ReceiveUsbData(void* conn, unsigned char* I2cRxData)
 {
 	int flag = 0;
 
-	flag = Mcp2221_I2cRead(conn, 8, 0xA, 1, I2cRxData);
+	flag = Mcp2221_I2cRead(conn, USBDATASIZE, 0xA, 1, I2cRxData);
 	if (flag != 0)
 	{
 		cout << "Data haven't been read correctly. Errorcode: " << flag << endl;

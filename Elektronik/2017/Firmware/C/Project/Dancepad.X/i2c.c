@@ -10,7 +10,8 @@
 
 // Global variable
 static unsigned char i2c_receive_data;
-static unsigned char i2c_transmit_data;
+static unsigned char* i2c_transmit_data;
+static unsigned int transmitStatus;
 static unsigned char address;
 
 void init_i2cslave()
@@ -38,11 +39,15 @@ void init_i2cslave()
     
     SSP1CON3bits.SCIE=1;        //Start Condition Interrupt Enable bit
     SSP1CON3bits.PCIE=1;        //Stop Condition Interrupt Enable bit
+    
+    transmitStatus = TRANSMITTED;
 }
 
 
 void __interrupt () rec_i2c(unsigned char data)
 {
+    int i = 0;
+    
     if(PIR1bits.SSPIF)
     {
         PIR1bits.SSPIF  = 0;
@@ -65,12 +70,15 @@ void __interrupt () rec_i2c(unsigned char data)
             }
             else if (SSP1STATbits.R_NOT_W)      // Write Data from I2C (USB)
             {
+                transmitStatus = TRANSMITTING;
                 while (SSP1STATbits.S)
                 {
                     if (!SSP1CON2bits.ACKSTAT)
                     {
-                        SSP1BUF = i2c_transmit_data;
-                        i2c_transmit_data = 0;
+                        SSP1BUF = *(i2c_transmit_data + i);
+                        *(i2c_transmit_data + i) = 0;
+                        
+                        i++;
                         
                         SSP1CON1bits.CKP = 1;
                         while(!PIR1bits.SSPIF)
@@ -79,6 +87,7 @@ void __interrupt () rec_i2c(unsigned char data)
                         PIR1bits.SSPIF  = 0;
                     }
                 }
+                transmitStatus = TRANSMITTED;
             }
         }
     }
@@ -90,14 +99,12 @@ unsigned char get_i2c_data()
     return(i2c_receive_data);
 }
 
-int send_i2c_data(unsigned char data)
+int send_i2c_data(unsigned char* data)
 {
-//    if (i2c_transmit_data == 0)
-//    {
+    if (transmitStatus == TRANSMITTED)
+    {
         i2c_transmit_data = data;
-//    }
-//    else
-//    {
-        return(-1);
- //   }
+        transmitStatus = NOTTRANSMITTED;
+    }
+    return(transmitStatus);
 }

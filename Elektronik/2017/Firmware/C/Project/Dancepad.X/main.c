@@ -26,6 +26,8 @@ void main(void) {
     int* color = 0;
     int i = 0;
     unsigned char dir = 0;
+    unsigned char arr[I2CDATASIZE] = { 1, 2, 3, 4, 5, 6, 7, 8};     // Array just temporarily needed
+    int i2cTxBufEmpty = TRANSMITTED;
     
     //Initialize Dancepad
     init_oscillator();
@@ -51,6 +53,13 @@ void main(void) {
         
         color = hsi_rgb(touch);
         set_rgbled(color[0], color[1], color[2]);
-        send_i2c_data(get_i2c_data());
+        arr[0] = 1;     // Array allocation just temporarily
+        arr[1] = 2;
+        arr[2] = 3;
+        arr[3] = 4;
+        arr[4] = 5;
+        arr[5] = 6;
+        arr[6] = 7;
+        i2cTxBufEmpty = send_i2c_data(arr);
     }
  }

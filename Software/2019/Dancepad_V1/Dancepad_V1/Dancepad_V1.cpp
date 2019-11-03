@@ -20,8 +20,8 @@ int main() {
 	bool FirstRun = FALSE;
 	int error = 0;
 
-	unsigned char Data[8];
-	for (int i = 0; i < 8; i++)
+	unsigned char Data[USBDATASIZE];
+	for (int i = 0; i < USBDATASIZE; i++)
 	{
 		Data[i] = 0;
 	}
@@ -49,7 +49,7 @@ int main() {
 		cout << "Device not successfully closed " << error << endl;
 	}
 
-	wcout << "Read Data: " << *Data << " has following error: " << error << endl;
+	wcout << "Read Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
 
 	cout << "Muahaha, I've done it" << endl;
 	return 0;
