@@ -22,14 +22,15 @@
 #include <xc.h>
 
 void main(void) {
-    unsigned int touch = 0, freq = 1000;
+    unsigned int touch = 0, freq = 5000;
     int* color = 0;
     unsigned char dir = 0;
     int i2cTxBufEmpty = TRANSMITTED;
     int i2cRxBufEmpty = NOTRECEIVED;
-    unsigned char arr[I2CDATASIZE] = {0};
+    unsigned char UsbRec[I2CDATASIZE] = {0};
+    unsigned char UsbTra[I2CDATASIZE] = {0};
     unsigned char val[I2CDATASIZE] = {0};
-    unsigned char mul = 2;
+    unsigned int piezoValues[5] = {0};
     
     //Initialize Dancepad
     init_oscillator();
@@ -50,27 +51,53 @@ void main(void) {
     //Infinite loop of the programm
     while(1)
     {   
+        blink_spiled(dir, freq);
+        
         i2cRxBufEmpty = get_i2c_data(val);
-        mul = val[0];
         
         for (int i = 0; i < I2CDATASIZE; i++)
         {
-            arr[i] = val[i];
+            UsbRec[i] = val[i];
         }
         
-        if (arr[0] == 1)
+        switch (UsbRec[0])
         {
-          set_rgbled(arr[1], arr[2], arr[3]);  
-        }
-        else
-        {
-            blink_spiled(dir, freq*mul);
-            touch = read_piezo();
+            case 0:
+            {}
+            break;
+            
+            case 3:
+            {
+                set_rgbled(UsbRec[1], UsbRec[2], UsbRec[3]);
+            }
+            break;
+            
+            case 4:
+            {
+                UsbTra[6] = read_piezo(piezoValues);
+                
+                for (int j = 0; j < 5; j++)
+                {
+                    UsbTra[j] = piezoValues[j];
+                }
+                
+                i2cTxBufEmpty = send_i2c_data(UsbTra);
+            }
+            
+            case 10:
+            {}
+            break;
+            
+            default: 
+            {
+                touch = read_piezo(piezoValues);
 
-            color = hsi_rgb(touch);
-            set_rgbled(color[0], color[1], color[2]);
+                color = hsi_rgb(touch);
+                set_rgbled(color[0], color[1], color[2]);
+            }
+            break;
         }
         
-        i2cTxBufEmpty = send_i2c_data(arr);
+
     }
  }

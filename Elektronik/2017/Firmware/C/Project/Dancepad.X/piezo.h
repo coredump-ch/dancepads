@@ -15,7 +15,7 @@ void init_piezo();
 unsigned int adc_convert(unsigned char);
 
 //Read Piezo value subroutine
-unsigned int read_piezo();
+unsigned int read_piezo(unsigned int* piezoData);
 
 #endif // PIEZO_H
 

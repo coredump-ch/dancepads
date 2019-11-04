@@ -11,9 +11,15 @@
 #define	DB_COMMUNICATION_H
 
 // Communication bits
-#define SETRGBCOLOR 1
+#define BEYOURSELF 1
+#define SCANTOPOLOGY 2
+#define SETRGBCOLOR 3
+#define READPIEZO 4
 
 //Set RGB Color
 int SetRgbColor(void* handle, unsigned char red, unsigned char green, unsigned char blue);
+
+//Read Piezo Values
+int ReadPiezo(void* handle, unsigned char* PiezoData);
 
 #endif

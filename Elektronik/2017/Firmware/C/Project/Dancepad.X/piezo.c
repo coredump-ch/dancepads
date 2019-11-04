@@ -58,9 +58,9 @@ unsigned int adc_convert(unsigned char ch)
     return ADRES;
 }
 
-unsigned int read_piezo()
+unsigned int read_piezo(unsigned int* piezoData)
 {
-    unsigned int piezo0, piezo1, piezo2, piezo3;
+    unsigned int tot, piezo0, piezo1, piezo2, piezo3;
     static unsigned int piezo_tot = 0;
     
     //Read ADC values
@@ -70,10 +70,17 @@ unsigned int read_piezo()
     piezo3 = adc_convert(3);
     
     //Integrate ADC values
-    piezo_tot = piezo_tot + piezo0 - piezo1 + piezo2 - piezo3;
-    if (piezo_tot > 1536)
+    piezo_tot = piezo_tot + piezo0 + piezo1 + piezo2 + piezo3;
+/*    if (piezo_tot > 1536)
     {
         piezo_tot = 0;
-    }
-    return piezo_tot;
+    }*/
+    
+    piezoData[0] = piezo_tot;
+    piezoData[1] = piezo0;
+    piezoData[2] = piezo1;
+    piezoData[3] = piezo2;
+    piezoData[4] = piezo3;
+    
+    return(piezo_tot);
 }
