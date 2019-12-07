@@ -16,11 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    DP_Communication.cpp \
+    USB_Communication.cpp \
+    hsi.cpp \
     main.cpp \
     dancepad.cpp
 
 HEADERS += \
-    dancepad.h
+    DP_Communication.h \
+    USB_Communication.h \
+    dancepad.h \
+    hsi.h \
+    mcp2221_dll_um.h
 
 FORMS += \
     dancepad.ui
@@ -29,3 +36,11 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+win32: LIBS += -L$$PWD/./ -lmcp2221_dll_um_x64
+
+INCLUDEPATH += $$PWD/.
+DEPENDPATH += $$PWD/.
+
+win32:!win32-g++: PRE_TARGETDEPS += $$PWD/./mcp2221_dll_um_x64.lib
+else:win32-g++: PRE_TARGETDEPS += $$PWD/./libmcp2221_dll_um_x64.a

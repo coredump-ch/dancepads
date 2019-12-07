@@ -53,3 +53,8 @@ Visual Studio automatic generated files
 *.pdb
 *.ilk
 *.new.obj.enc
+
+QT Creator automatic generated files:
+*.Debug
+*.Release
+/Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug

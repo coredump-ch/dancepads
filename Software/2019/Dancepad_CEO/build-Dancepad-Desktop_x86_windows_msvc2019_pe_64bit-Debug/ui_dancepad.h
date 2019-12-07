@@ -13,13 +13,14 @@
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGridLayout>
+#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
-#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -28,13 +29,17 @@ class Ui_Dancepad
 {
 public:
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout;
+    QHBoxLayout *horizontalLayout;
     QTabWidget *tabWidget;
     QWidget *tab_1;
     QGridLayout *gridLayout_2;
     QLabel *label;
     QWidget *tab_2;
     QWidget *tab_3;
+    QWidget *layoutWidget;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label_2;
+    QPushButton *pbChangeHue;
     QStatusBar *statusbar;
     QMenuBar *menubar;
     QMenu *menuDancepad;
@@ -46,8 +51,8 @@ public:
         Dancepad->resize(800, 600);
         centralwidget = new QWidget(Dancepad);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        verticalLayout = new QVBoxLayout(centralwidget);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        horizontalLayout = new QHBoxLayout(centralwidget);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         tabWidget = new QTabWidget(centralwidget);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
         tab_1 = new QWidget();
@@ -71,9 +76,25 @@ public:
         tabWidget->addTab(tab_2, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
+        layoutWidget = new QWidget(tab_3);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(50, 60, 146, 25));
+        horizontalLayout_2 = new QHBoxLayout(layoutWidget);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        label_2 = new QLabel(layoutWidget);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+
+        horizontalLayout_2->addWidget(label_2);
+
+        pbChangeHue = new QPushButton(layoutWidget);
+        pbChangeHue->setObjectName(QString::fromUtf8("pbChangeHue"));
+
+        horizontalLayout_2->addWidget(pbChangeHue);
+
         tabWidget->addTab(tab_3, QString());
 
-        verticalLayout->addWidget(tabWidget);
+        horizontalLayout->addWidget(tabWidget);
 
         Dancepad->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(Dancepad);
@@ -105,6 +126,8 @@ public:
         tab_2->setToolTip(QApplication::translate("Dancepad", "<html><head/><body><p><br/></p></body></html>", nullptr));
 #endif // QT_NO_TOOLTIP
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("Dancepad", "Trending", nullptr));
+        label_2->setText(QApplication::translate("Dancepad", "Change Hue:", nullptr));
+        pbChangeHue->setText(QApplication::translate("Dancepad", "Start", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_3), QApplication::translate("Dancepad", "Color changing", nullptr));
         menuDancepad->setTitle(QApplication::translate("Dancepad", "Dancepad", nullptr));
     } // retranslateUi
