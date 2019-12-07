@@ -10,6 +10,16 @@
 #include "USB_Communication.h"
 #include "DP_Communication.h"
 
+#include <QGraphicsView>
+#include <QGraphicsItem>
+#include <QGraphicsPixmapItem>
+#include <QWheelEvent>
+#include <QDebug>
+#include <QImage>
+#include <QImageReader>
+#include <QApplication>
+#include <QDesktopWidget>
+
 #define executionTime 10
 
 //QT_BEGIN_NAMESPACE
@@ -52,5 +62,7 @@ private:
 
     // functions
     void plotValues(unsigned char* piezoData);
+    void mousePress();
+    void mouseWheel();
 };
 #endif // DANCEPAD_H

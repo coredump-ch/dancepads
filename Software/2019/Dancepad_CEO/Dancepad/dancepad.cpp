@@ -21,6 +21,10 @@ Dancepad::Dancepad(QWidget *parent) :
     // open first tab
     ui->tabWidget->setCurrentIndex(0);
 
+    // enable mousetrack
+    setMouseTracking(true);
+    ui->plotWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+
     // configure value axes
     ui->plotWidget->yAxis->setTickLabels(false);
     connect(ui->plotWidget->yAxis2, SIGNAL(rangeChanged(QCPRange)), ui->plotWidget->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
@@ -152,6 +156,32 @@ void Dancepad::plotValues(unsigned char* piezoData)
     ui->plotWidget->replot();
 }
 
+void Dancepad::mousePress()
+{
+  // if an axis is selected, only allow the direction of that axis to be dragged
+  // if no axis is selected, both directions may be dragged
+
+  if (ui->plotWidget->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+    ui->plotWidget->axisRect()->setRangeDrag(ui->plotWidget->xAxis->orientation());
+  else if (ui->plotWidget->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
+    ui->plotWidget->axisRect()->setRangeDrag(ui->plotWidget->yAxis2->orientation());
+  else
+    ui->plotWidget->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
+}
+
+void Dancepad::mouseWheel()
+{
+  // if an axis is selected, only allow the direction of that axis to be zoomed
+  // if no axis is selected, both directions may be zoomed
+
+  if (ui->plotWidget->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
+    ui->plotWidget->axisRect()->setRangeZoom(ui->plotWidget->xAxis->orientation());
+  else if (ui->plotWidget->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
+    ui->plotWidget->axisRect()->setRangeZoom(ui->plotWidget->yAxis2->orientation());
+  else
+    ui->plotWidget->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+}
+
 void Dancepad::on_pbChangeHue_clicked()
 {
     // start hue changing, if it is stopped
@@ -183,3 +213,5 @@ void Dancepad::on_pbTrendStart_clicked()
         ui->pbTrendStart->setText("Stop");
     }
 }
+
+
