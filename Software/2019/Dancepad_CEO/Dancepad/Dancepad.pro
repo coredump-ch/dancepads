@@ -1,6 +1,6 @@
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 CONFIG += c++11
 
@@ -18,16 +18,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     DP_Communication.cpp \
     USB_Communication.cpp \
+    axistag.cpp \
     hsi.cpp \
     main.cpp \
-    dancepad.cpp
+    dancepad.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
     DP_Communication.h \
     USB_Communication.h \
+    axistag.h \
     dancepad.h \
     hsi.h \
-    mcp2221_dll_um.h
+    mcp2221_dll_um.h \
+    qcustomplot.h
 
 FORMS += \
     dancepad.ui

@@ -58,3 +58,7 @@ QT Creator automatic generated files:
 *.Debug
 *.Release
 /Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug
+Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug/debug/moc_dancepad.cpp
+Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug/Makefile.Debug
+Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug/Makefile.Release
+Software/2019/Dancepad_CEO/build-Dancepad-Desktop_x86_windows_msvc2019_pe_64bit-Debug/ui_dancepad.h

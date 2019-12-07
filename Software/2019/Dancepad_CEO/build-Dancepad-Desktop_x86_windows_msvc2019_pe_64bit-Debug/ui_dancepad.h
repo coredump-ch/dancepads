@@ -21,7 +21,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTabWidget>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -35,6 +37,12 @@ public:
     QGridLayout *gridLayout_2;
     QLabel *label;
     QWidget *tab_2;
+    QGridLayout *gridLayout;
+    QVBoxLayout *verticalLayout;
+    QGridLayout *gridLayout_3;
+    QPushButton *pbTrendStart;
+    QPushButton *pushButton;
+    QCustomPlot *plotWidget;
     QWidget *tab_3;
     QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout_2;
@@ -73,6 +81,39 @@ public:
         tabWidget->addTab(tab_1, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
+        gridLayout = new QGridLayout(tab_2);
+        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        gridLayout_3 = new QGridLayout();
+        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
+        pbTrendStart = new QPushButton(tab_2);
+        pbTrendStart->setObjectName(QString::fromUtf8("pbTrendStart"));
+
+        gridLayout_3->addWidget(pbTrendStart, 0, 0, 1, 1);
+
+        pushButton = new QPushButton(tab_2);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+
+        gridLayout_3->addWidget(pushButton, 0, 1, 1, 1);
+
+
+        verticalLayout->addLayout(gridLayout_3);
+
+        plotWidget = new QCustomPlot(tab_2);
+        plotWidget->setObjectName(QString::fromUtf8("plotWidget"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(plotWidget->sizePolicy().hasHeightForWidth());
+        plotWidget->setSizePolicy(sizePolicy);
+        plotWidget->setMinimumSize(QSize(0, 0));
+
+        verticalLayout->addWidget(plotWidget);
+
+
+        gridLayout->addLayout(verticalLayout, 0, 0, 1, 1);
+
         tabWidget->addTab(tab_2, QString());
         tab_3 = new QWidget();
         tab_3->setObjectName(QString::fromUtf8("tab_3"));
@@ -111,7 +152,7 @@ public:
 
         retranslateUi(Dancepad);
 
-        tabWidget->setCurrentIndex(2);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(Dancepad);
@@ -120,11 +161,13 @@ public:
     void retranslateUi(QMainWindow *Dancepad)
     {
         Dancepad->setWindowTitle(QApplication::translate("Dancepad", "Dancepad", nullptr));
-        label->setText(QApplication::translate("Dancepad", "!!Dancepad!!", nullptr));
+        label->setText(QApplication::translate("Dancepad", "!!! Dancepad !!!", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_1), QApplication::translate("Dancepad", "Welcome", nullptr));
 #ifndef QT_NO_TOOLTIP
-        tab_2->setToolTip(QApplication::translate("Dancepad", "<html><head/><body><p><br/></p></body></html>", nullptr));
+        tab_2->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
+        pbTrendStart->setText(QApplication::translate("Dancepad", "Start", nullptr));
+        pushButton->setText(QApplication::translate("Dancepad", "PushButton", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("Dancepad", "Trending", nullptr));
         label_2->setText(QApplication::translate("Dancepad", "Change Hue:", nullptr));
         pbChangeHue->setText(QApplication::translate("Dancepad", "Start", nullptr));
