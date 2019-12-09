@@ -40,8 +40,9 @@ public:
     QGridLayout *gridLayout;
     QVBoxLayout *verticalLayout;
     QGridLayout *gridLayout_3;
+    QPushButton *pbTrendRun;
     QPushButton *pbTrendStart;
-    QPushButton *pushButton;
+    QPushButton *pbTrend100Percent;
     QCustomPlot *plotWidget;
     QWidget *tab_3;
     QWidget *layoutWidget;
@@ -87,15 +88,20 @@ public:
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         gridLayout_3 = new QGridLayout();
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
+        pbTrendRun = new QPushButton(tab_2);
+        pbTrendRun->setObjectName(QString::fromUtf8("pbTrendRun"));
+
+        gridLayout_3->addWidget(pbTrendRun, 0, 1, 1, 1);
+
         pbTrendStart = new QPushButton(tab_2);
         pbTrendStart->setObjectName(QString::fromUtf8("pbTrendStart"));
 
         gridLayout_3->addWidget(pbTrendStart, 0, 0, 1, 1);
 
-        pushButton = new QPushButton(tab_2);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pbTrend100Percent = new QPushButton(tab_2);
+        pbTrend100Percent->setObjectName(QString::fromUtf8("pbTrend100Percent"));
 
-        gridLayout_3->addWidget(pushButton, 0, 1, 1, 1);
+        gridLayout_3->addWidget(pbTrend100Percent, 0, 2, 1, 1);
 
 
         verticalLayout->addLayout(gridLayout_3);
@@ -166,8 +172,9 @@ public:
 #ifndef QT_NO_TOOLTIP
         tab_2->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
+        pbTrendRun->setText(QApplication::translate("Dancepad", "Run", nullptr));
         pbTrendStart->setText(QApplication::translate("Dancepad", "Start", nullptr));
-        pushButton->setText(QApplication::translate("Dancepad", "PushButton", nullptr));
+        pbTrend100Percent->setText(QApplication::translate("Dancepad", "Zoom 100%", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("Dancepad", "Trending", nullptr));
         label_2->setText(QApplication::translate("Dancepad", "Change Hue:", nullptr));
         pbChangeHue->setText(QApplication::translate("Dancepad", "Start", nullptr));

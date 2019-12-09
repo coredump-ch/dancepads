@@ -24,46 +24,11 @@ Dancepad::Dancepad(QWidget *parent) :
     // enable mousetrack
     setMouseTracking(true);
     ui->plotWidget->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectPlottables);
+    connect(ui->plotWidget, &QCustomPlot::mousePress, this, &Dancepad::mouseButton);
+    connect(ui->plotWidget, &QCustomPlot::mouseWheel, this, &Dancepad::mouseButton);
 
-    // configure value axes
-    ui->plotWidget->yAxis->setTickLabels(false);
-    connect(ui->plotWidget->yAxis2, SIGNAL(rangeChanged(QCPRange)), ui->plotWidget->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
-    ui->plotWidget->yAxis2->setVisible(true);
-    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(60);
-    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setRange(0, 300); // add some padding to have space for tags
-
-    // create graphs
-    mGraph1 = ui->plotWidget->addGraph(ui->plotWidget->xAxis, ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0));
-    mGraph2 = ui->plotWidget->addGraph(ui->plotWidget->xAxis, ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0));
-    mGraph3 = ui->plotWidget->addGraph(ui->plotWidget->xAxis, ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0));
-    mGraph4 = ui->plotWidget->addGraph(ui->plotWidget->xAxis, ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0));
-    mGraph5 = ui->plotWidget->addGraph(ui->plotWidget->xAxis, ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0));
-    mGraph1->setPen(QPen(QColor(250, 0, 0)));
-    mGraph2->setPen(QPen(QColor(250, 250, 0)));
-    mGraph3->setPen(QPen(QColor(0, 250, 0)));
-    mGraph4->setPen(QPen(QColor(0, 250, 250)));
-    mGraph5->setPen(QPen(QColor(0, 0, 250)));
-    mGraph1->setName("Piezo Sum");
-    mGraph2->setName("Piezo 1");
-    mGraph3->setName("Piezo 2");
-    mGraph4->setName("Piezo 3");
-    mGraph5->setName("Piezo 4");
-
-    // create tags
-    mTag1 = new AxisTag(mGraph1->valueAxis());
-    mTag1->setPen(mGraph1->pen());
-    mTag2 = new AxisTag(mGraph2->valueAxis());
-    mTag2->setPen(mGraph2->pen());
-    mTag3 = new AxisTag(mGraph3->valueAxis());
-    mTag3->setPen(mGraph3->pen());
-    mTag4 = new AxisTag(mGraph4->valueAxis());
-    mTag4->setPen(mGraph4->pen());
-    mTag5 = new AxisTag(mGraph5->valueAxis());
-    mTag5->setPen(mGraph5->pen());
-
-    // create legend
-    ui->plotWidget->legend->setVisible(true);
-    ui->plotWidget->legend->setRowSpacing(-3);
+    // configure plot
+    setupPlot();
 
     // establish USB connection and initialize tiles
     handle = OpenUsbComm();
@@ -122,6 +87,53 @@ void Dancepad::timerSlot()
     }
 }
 
+void Dancepad::setupPlot()
+{
+    // initializing variables
+    replotPlot = 1;
+    rescalePlot = 1;
+
+    // configure value axes
+    ui->plotWidget->yAxis->setTickLabels(false);
+    connect(ui->plotWidget->yAxis2, SIGNAL(rangeChanged(QCPRange)), ui->plotWidget->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
+    ui->plotWidget->yAxis2->setVisible(true);
+    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(60);
+    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setRange(0, 300); // add some padding to have space for tags
+
+    // create graphs
+    mGraph1 = ui->plotWidget->addGraph();
+    mGraph2 = ui->plotWidget->addGraph();
+    mGraph3 = ui->plotWidget->addGraph();
+    mGraph4 = ui->plotWidget->addGraph();
+    mGraph5 = ui->plotWidget->addGraph();
+    mGraph1->setPen(QPen(QColor(250, 0, 0)));
+    mGraph2->setPen(QPen(QColor(250, 250, 0)));
+    mGraph3->setPen(QPen(QColor(0, 250, 0)));
+    mGraph4->setPen(QPen(QColor(0, 250, 250)));
+    mGraph5->setPen(QPen(QColor(0, 0, 250)));
+    mGraph1->setName("Piezo Sum");
+    mGraph2->setName("Piezo 1");
+    mGraph3->setName("Piezo 2");
+    mGraph4->setName("Piezo 3");
+    mGraph5->setName("Piezo 4");
+
+    // create tags
+    mTag1 = new AxisTag(mGraph1->valueAxis());
+    mTag1->setPen(mGraph1->pen());
+    mTag2 = new AxisTag(mGraph2->valueAxis());
+    mTag2->setPen(mGraph2->pen());
+    mTag3 = new AxisTag(mGraph3->valueAxis());
+    mTag3->setPen(mGraph3->pen());
+    mTag4 = new AxisTag(mGraph4->valueAxis());
+    mTag4->setPen(mGraph4->pen());
+    mTag5 = new AxisTag(mGraph5->valueAxis());
+    mTag5->setPen(mGraph5->pen());
+
+    // create legend
+    ui->plotWidget->legend->setVisible(true);
+    ui->plotWidget->legend->setRowSpacing(-3);
+}
+
 void Dancepad::plotValues(unsigned char* piezoData)
 {
     // calculate and add a new data point to each graph
@@ -131,8 +143,21 @@ void Dancepad::plotValues(unsigned char* piezoData)
     mGraph4->addData(mGraph4->dataCount(), piezoData[3]);
     mGraph5->addData(mGraph5->dataCount(), piezoData[4]);
 
-    ui->plotWidget->xAxis->rescale();
-    ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
+    if(replotPlot && rescalePlot)
+    {
+        ui->plotWidget->yAxis->setRange(0, 300);
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
+        ui->plotWidget->xAxis->rescale();
+    }
+    else if (replotPlot)
+    {
+        ui->plotWidget->xAxis->rescale();
+    }
+    else if (rescalePlot)
+    {
+        ui->plotWidget->yAxis->setRange(0, 300);
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
+    }
 
     // update the vertical axis tag positions and texts to match the rightmost data point of the graphs
     double graph1Value = mGraph1->dataMainValue(mGraph1->dataCount()-1);
@@ -156,30 +181,10 @@ void Dancepad::plotValues(unsigned char* piezoData)
     ui->plotWidget->replot();
 }
 
-void Dancepad::mousePress()
+void Dancepad::mouseButton()
 {
-  // if an axis is selected, only allow the direction of that axis to be dragged
-  // if no axis is selected, both directions may be dragged
-
-  if (ui->plotWidget->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-    ui->plotWidget->axisRect()->setRangeDrag(ui->plotWidget->xAxis->orientation());
-  else if (ui->plotWidget->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
-    ui->plotWidget->axisRect()->setRangeDrag(ui->plotWidget->yAxis2->orientation());
-  else
-    ui->plotWidget->axisRect()->setRangeDrag(Qt::Horizontal|Qt::Vertical);
-}
-
-void Dancepad::mouseWheel()
-{
-  // if an axis is selected, only allow the direction of that axis to be zoomed
-  // if no axis is selected, both directions may be zoomed
-
-  if (ui->plotWidget->xAxis->selectedParts().testFlag(QCPAxis::spAxis))
-    ui->plotWidget->axisRect()->setRangeZoom(ui->plotWidget->xAxis->orientation());
-  else if (ui->plotWidget->yAxis2->selectedParts().testFlag(QCPAxis::spAxis))
-    ui->plotWidget->axisRect()->setRangeZoom(ui->plotWidget->yAxis2->orientation());
-  else
-    ui->plotWidget->axisRect()->setRangeZoom(Qt::Horizontal|Qt::Vertical);
+    rescalePlot = 0;
+    replotPlot = 0;
 }
 
 void Dancepad::on_pbChangeHue_clicked()
@@ -214,4 +219,12 @@ void Dancepad::on_pbTrendStart_clicked()
     }
 }
 
+void Dancepad::on_pbTrendRun_clicked()
+{
+    replotPlot = 1;
+}
 
+void Dancepad::on_pbTrend100Percent_clicked()
+{
+    rescalePlot = 1;
+}

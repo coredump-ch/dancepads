@@ -10,6 +10,8 @@
 #include "USB_Communication.h"
 #include "DP_Communication.h"
 
+#include <QWidget>
+#include <QMouseEvent>
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QGraphicsPixmapItem>
@@ -19,6 +21,7 @@
 #include <QImageReader>
 #include <QApplication>
 #include <QDesktopWidget>
+#include <QMouseEvent>
 
 #define executionTime 10
 
@@ -38,6 +41,10 @@ private slots:
     void timerSlot();
     void on_pbChangeHue_clicked();
     void on_pbTrendStart_clicked();
+    void on_pbTrendRun_clicked();
+    void on_pbTrend100Percent_clicked();
+    void mouseButton();
+//    void mouseWheel();
 
 private:
     Ui::Dancepad *ui;
@@ -57,12 +64,13 @@ private:
     QCPItemText *textLabel1;
     QCPItemText *textLabel2;
     void* handle;
+    bool replotPlot;
+    bool rescalePlot;
     float hue = 0;
     unsigned int state = 0;
 
     // functions
     void plotValues(unsigned char* piezoData);
-    void mousePress();
-    void mouseWheel();
+    void setupPlot();
 };
 #endif // DANCEPAD_H
