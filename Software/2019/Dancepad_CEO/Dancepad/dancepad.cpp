@@ -158,6 +158,8 @@ void Dancepad::plotValues(unsigned char* piezoData)
         ui->plotWidget->yAxis->setRange(0, 300);
         ui->plotWidget->xAxis->rescale();
         ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 10, Qt::AlignRight);
+        plotUpperPosition = ui->plotWidget->xAxis->range().upper;
+        plotLowerPosition = ui->plotWidget->xAxis->range().lower;
     }
     else if (replotPlot)
     {
@@ -201,6 +203,7 @@ void Dancepad::mouseButton()
 {
     rescalePlot = 0;
     replotPlot = 0;
+    ui->pbTrendRun->setText("Move Time");
 }
 
 void Dancepad::on_pbChangeHue_clicked()
@@ -221,23 +224,34 @@ void Dancepad::on_pbChangeHue_clicked()
 
 void Dancepad::on_pbTrendStart_clicked()
 {
-    // start trend plotting, if it is stopped
+    // start data recording, if it is stopped
     if(state == 2)
     {
         state = 0;
-        ui->pbTrendStart->setText("Start");
+        ui->pbTrendStart->setText("Start Data Record");
     }
-    // stop trend plotting, if it is started
+    // stop data recording, if it is started
     else
     {
         state = 2;
-        ui->pbTrendStart->setText("Stop");
+        ui->pbTrendStart->setText("Pause Data Record");
     }
 }
 
 void Dancepad::on_pbTrendRun_clicked()
 {
-    replotPlot = 1;
+    // start data recording, if it is stopped
+    if(replotPlot == 1)
+    {
+        replotPlot = 0;
+        ui->pbTrendRun->setText("Move Time");
+    }
+    // stop data recording, if it is started
+    else
+    {
+        replotPlot = 1;
+        ui->pbTrendRun->setText("Pause Time");
+    }
 }
 
 void Dancepad::on_pbTrend100Percent_clicked()

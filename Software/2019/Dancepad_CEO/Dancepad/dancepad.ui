@@ -14,7 +14,7 @@
    <string>Dancepad</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
@@ -59,34 +59,65 @@
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout">
           <item>
-           <layout class="QGridLayout" name="gridLayout_3">
-            <item row="0" column="1">
-             <widget class="QPushButton" name="pbTrendRun">
-              <property name="text">
-               <string>Run</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
              <widget class="QPushButton" name="pbTrendStart">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="text">
-               <string>Start</string>
+               <string>Start Data Record</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
+            <item>
+             <widget class="QPushButton" name="pbTrendRun">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Pause Time</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="pbTrend100Percent">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>23</height>
+               </size>
+              </property>
               <property name="text">
                <string>Zoom 100%</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
           <item>
            <widget class="QCustomPlot" name="plotWidget" native="true">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -164,6 +195,13 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>pbTrendStart</tabstop>
+  <tabstop>pbTrendRun</tabstop>
+  <tabstop>pbTrend100Percent</tabstop>
+  <tabstop>pbChangeHue</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
