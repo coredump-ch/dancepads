@@ -146,17 +146,23 @@ void Dancepad::plotValues(unsigned char* piezoData)
     if(replotPlot && rescalePlot)
     {
         ui->plotWidget->yAxis->setRange(0, 300);
-        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
         ui->plotWidget->xAxis->rescale();
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
     }
     else if (replotPlot)
     {
         ui->plotWidget->xAxis->rescale();
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, (plotUpperPosition-plotLowerPosition), Qt::AlignRight);
     }
     else if (rescalePlot)
     {
         ui->plotWidget->yAxis->setRange(0, 300);
-        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
+        ui->plotWidget->xAxis->setRange((plotUpperPosition+plotLowerPosition)/2+50, 100, Qt::AlignRight);
+    }
+    else if (!replotPlot && !rescalePlot)
+    {
+        plotUpperPosition = ui->plotWidget->xAxis->range().upper;
+        plotLowerPosition = ui->plotWidget->xAxis->range().lower;
     }
 
     // update the vertical axis tag positions and texts to match the rightmost data point of the graphs
@@ -217,6 +223,8 @@ void Dancepad::on_pbTrendStart_clicked()
         state = 2;
         ui->pbTrendStart->setText("Stop");
     }
+    replotPlot = 1;
+    rescalePlot = 1;
 }
 
 void Dancepad::on_pbTrendRun_clicked()

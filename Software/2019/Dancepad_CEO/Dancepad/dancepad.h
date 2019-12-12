@@ -68,6 +68,8 @@ private:
     bool rescalePlot;
     float hue = 0;
     unsigned int state = 0;
+    double plotUpperPosition = 0;
+    double plotLowerPosition = 0;
 
     // functions
     void plotValues(unsigned char* piezoData);
