@@ -92,6 +92,7 @@ void Dancepad::setupPlot()
     // initializing variables
     replotPlot = 1;
     rescalePlot = 1;
+    firstPlotValue = 1;
 
     // configure value axes
     ui->plotWidget->yAxis->setTickLabels(false);
@@ -136,18 +137,27 @@ void Dancepad::setupPlot()
 
 void Dancepad::plotValues(unsigned char* piezoData)
 {
+    ct = QDateTime::currentDateTime();
+    if (firstPlotValue == 1)
+    {
+        timeStart = ct.toMSecsSinceEpoch() / 1000.0;
+        firstPlotValue = 0;
+    }
+    time = ct.toMSecsSinceEpoch() / 1000.0;
+
     // calculate and add a new data point to each graph
-    mGraph1->addData(mGraph1->dataCount(), piezoData[0]);
-    mGraph2->addData(mGraph2->dataCount(), piezoData[1]);
-    mGraph3->addData(mGraph3->dataCount(), piezoData[2]);
-    mGraph4->addData(mGraph4->dataCount(), piezoData[3]);
-    mGraph5->addData(mGraph5->dataCount(), piezoData[4]);
+    mGraph1->addData(time-timeStart, piezoData[0]);
+    mGraph2->addData(time-timeStart, piezoData[1]);
+    mGraph3->addData(time-timeStart, piezoData[2]);
+    mGraph4->addData(time-timeStart, piezoData[3]);
+    mGraph5->addData(time-timeStart, piezoData[4]);
+
 
     if(replotPlot && rescalePlot)
     {
         ui->plotWidget->yAxis->setRange(0, 300);
         ui->plotWidget->xAxis->rescale();
-        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 100, Qt::AlignRight);
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 10, Qt::AlignRight);
     }
     else if (replotPlot)
     {
@@ -157,7 +167,7 @@ void Dancepad::plotValues(unsigned char* piezoData)
     else if (rescalePlot)
     {
         ui->plotWidget->yAxis->setRange(0, 300);
-        ui->plotWidget->xAxis->setRange((plotUpperPosition+plotLowerPosition)/2+50, 100, Qt::AlignRight);
+        ui->plotWidget->xAxis->setRange((plotUpperPosition+plotLowerPosition)/2+5, 10, Qt::AlignRight);
     }
     else if (!replotPlot && !rescalePlot)
     {
@@ -223,8 +233,6 @@ void Dancepad::on_pbTrendStart_clicked()
         state = 2;
         ui->pbTrendStart->setText("Stop");
     }
-    replotPlot = 1;
-    rescalePlot = 1;
 }
 
 void Dancepad::on_pbTrendRun_clicked()

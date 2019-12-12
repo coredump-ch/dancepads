@@ -9,19 +9,10 @@
 #include "mcp2221_dll_um.h"
 #include "USB_Communication.h"
 #include "DP_Communication.h"
-
-#include <QWidget>
 #include <QMouseEvent>
-#include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QGraphicsPixmapItem>
 #include <QWheelEvent>
-#include <QDebug>
-#include <QImage>
-#include <QImageReader>
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QMouseEvent>
+#include <QTime>
+#include <QDateTime>
 
 #define executionTime 10
 
@@ -50,6 +41,7 @@ private:
     Ui::Dancepad *ui;
 //    QCustomPlot *mPlot;
     QTimer mDataTimer;
+    QDateTime ct;
     RGB rgbColor;
     QPointer<QCPGraph> mGraph1;
     QPointer<QCPGraph> mGraph2;
@@ -66,10 +58,13 @@ private:
     void* handle;
     bool replotPlot;
     bool rescalePlot;
+    bool firstPlotValue;
     float hue = 0;
     unsigned int state = 0;
     double plotUpperPosition = 0;
     double plotLowerPosition = 0;
+    double time;
+    double timeStart;
 
     // functions
     void plotValues(unsigned char* piezoData);
