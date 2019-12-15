@@ -30,19 +30,39 @@ public:
 
 private slots:
     void timerSlot();
-    void on_pbChangeHue_clicked();
+    void on_pbSweepHue_clicked();
     void on_pbTrendStart_clicked();
     void on_pbTrendRun_clicked();
     void on_pbTrend100Percent_clicked();
     void mouseButton();
-//    void mouseWheel();
+    void on_inHue_editingFinished();
+//    void on_sbHue_valueChanged(int value) ;
+    void on_sbHue_actionTriggered(int action);
+    void on_inSaturation_editingFinished();
+    void on_sbSaturation_actionTriggered(int action);
+    void on_inIntensity_editingFinished();
+    void on_sbIntensity_actionTriggered(int action);
+    void initColor();
+    void colorChangingState();
+    void updateColor();
+    void on_pbSweepSaturation_clicked();
+    void on_pbSweepIntensity_clicked();
+    void on_sbRed_actionTriggered(int action);
+    void on_inRed_editingFinished();
+    void on_inGreen_editingFinished();
+    void on_sbGreen_actionTriggered(int action);
+    void on_inBlue_editingFinished();
+    void on_sbBlue_actionTriggered(int action);
+    void on_pbSweepRed_clicked();
+    void on_pbSweepGreen_clicked();
+    void on_pbSweepBlue_clicked();
 
 private:
     Ui::Dancepad *ui;
-//    QCustomPlot *mPlot;
     QTimer mDataTimer;
     QDateTime ct;
     RGB rgbColor;
+    HSI hsiColor;
     QPointer<QCPGraph> mGraph1;
     QPointer<QCPGraph> mGraph2;
     QPointer<QCPGraph> mGraph3;
@@ -59,8 +79,12 @@ private:
     bool replotPlot;
     bool rescalePlot;
     bool firstPlotValue;
-    float hue = 0;
+    bool rgbChanged = 0;
     unsigned int state = 0;
+    unsigned int colorState = 0;
+    float hue = 0;
+    float saturation = 1.0;
+    float intensity = 0.05;
     double plotUpperPosition = 0;
     double plotLowerPosition = 0;
     double time;

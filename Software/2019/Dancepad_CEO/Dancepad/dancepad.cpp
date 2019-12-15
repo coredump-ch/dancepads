@@ -32,7 +32,8 @@ Dancepad::Dancepad(QWidget *parent) :
 
     // establish USB connection and initialize tiles
     handle = OpenUsbComm();
-    SetRgbColor(handle, 0, 0, 0);
+    rgbColor = hsi2rgb(hue, saturation, intensity);
+    SetRgbColor(handle, uchar(rgbColor.r), uchar(rgbColor.g), uchar(rgbColor.b));
 
     // start execution timer
     connect(&mDataTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
@@ -40,6 +41,9 @@ Dancepad::Dancepad(QWidget *parent) :
 
     // initialize variables
     state = 0;
+
+    // initialize color widgets
+    initColor();
 }
 
 Dancepad::~Dancepad()
@@ -57,16 +61,13 @@ void Dancepad::timerSlot()
         // initial state
         case 0:
         {
-             SetRgbColor(handle, 0, 0, 0);
         }
         break;
 
-        // hue changing state
+        // color changing state
         case 1:
         {
-            rgbColor = hsi2rgb(hue, 1, 0.1);
-            SetRgbColor(handle, rgbColor.r, rgbColor.g, rgbColor.b);
-            hue = hue + 1;
+            colorChangingState();
         }
         break;
 
@@ -81,11 +82,13 @@ void Dancepad::timerSlot()
         // error state
         default:
         {
-            rgbColor = hsi2rgb(0, 0, 0);
-            hue = 0;
         }
     }
 }
+
+//****************************************************************************************
+// Trend plot page:
+//****************************************************************************************
 
 void Dancepad::setupPlot()
 {
@@ -206,22 +209,6 @@ void Dancepad::mouseButton()
     ui->pbTrendRun->setText("Move Time");
 }
 
-void Dancepad::on_pbChangeHue_clicked()
-{
-    // start hue changing, if it is stopped
-    if(state == 1)
-    {
-        state = 0;
-        ui->pbChangeHue->setText("Start");
-    }
-    // stop hue changing, if it is started
-    else
-    {
-        state = 1;
-        ui->pbChangeHue->setText("Stop");
-    }
-}
-
 void Dancepad::on_pbTrendStart_clicked()
 {
     // start data recording, if it is stopped
@@ -257,4 +244,487 @@ void Dancepad::on_pbTrendRun_clicked()
 void Dancepad::on_pbTrend100Percent_clicked()
 {
     rescalePlot = 1;
+}
+
+
+//****************************************************************************************
+// Color changing page:
+//****************************************************************************************
+void Dancepad::initColor()
+{
+    ui->inHue->setValue(int(hue));
+    ui->sbHue->setValue(int(hue));
+    ui->sbSaturation->setValue(int(100*saturation));
+    ui->inSaturation->setValue(double(saturation));
+    ui->sbIntensity->setValue(int(100*intensity));
+    ui->inIntensity->setValue(double(intensity));
+
+    ui->sbRed->setValue(rgbColor.r);
+    ui->inRed->setValue(rgbColor.r);
+    ui->sbGreen->setValue(rgbColor.g);
+    ui->inGreen->setValue(rgbColor.g);
+    ui->sbBlue->setValue(rgbColor.b);
+    ui->inBlue->setValue(rgbColor.b);
+}
+
+void Dancepad::colorChangingState()
+{
+    // state machine
+    switch(colorState)
+    {
+        // sweep hue
+        case 0:
+        {
+            hue = hue + 1;
+            if (hue >= 361)
+            {
+                hue = 0;
+            }
+
+            rgbChanged = 0;
+            updateColor();
+
+            ui->inHue->setValue(int(hue));
+            ui->sbHue->setValue(int(hue));
+        }
+        break;
+
+        // sweep saturation
+        case 1:
+        {
+            saturation = saturation + 0.01f;
+            if (saturation >= 1.01f)
+            {
+                saturation = 0;
+            }
+
+            rgbChanged = 0;
+            updateColor();
+
+            ui->inSaturation->setValue(int(saturation));
+            ui->sbSaturation->setValue(int(100*saturation));
+        }
+        break;
+
+        // sweep intensity
+        case 2:
+        {
+            intensity = intensity +  0.01f;
+            if (intensity >= 1.01f)
+            {
+                intensity = 0;
+            }
+
+            rgbChanged = 0;
+            updateColor();
+
+            ui->inIntensity->setValue(int(intensity));
+            ui->sbIntensity->setValue(int(100*intensity));
+        }
+        break;
+
+        // sweep red
+        case 3:
+        {
+            rgbColor.r = rgbColor.r +  1;
+            if (rgbColor.r >= 256)
+            {
+                rgbColor.r = 0;
+            }
+
+            rgbChanged = 1;
+            updateColor();
+
+            ui->inRed->setValue(rgbColor.r);
+            ui->sbRed->setValue(rgbColor.r);
+        }
+        break;
+
+        // sweep green
+        case 4:
+        {
+            rgbColor.g = rgbColor.g +  1;
+            if (rgbColor.g >= 256)
+            {
+                rgbColor.g = 0;
+            }
+
+            rgbChanged = 1;
+            updateColor();
+
+            ui->inGreen->setValue(rgbColor.g);
+            ui->sbGreen->setValue(rgbColor.g);
+        }
+        break;
+
+        // sweep blue
+        case 5:
+        {
+            rgbColor.b = rgbColor.b +  1;
+            if (rgbColor.b >= 256)
+            {
+                rgbColor.b = 0;
+            }
+
+            rgbChanged = 1;
+            updateColor();
+
+            ui->inBlue->setValue(rgbColor.b);
+            ui->sbBlue->setValue(rgbColor.b);
+        }
+        break;
+
+        // error state
+        default:
+        {
+        }
+    }
+}
+
+void Dancepad::updateColor()
+{
+    if(rgbChanged == 0)
+    {
+        rgbColor = hsi2rgb(hue, saturation, intensity);
+        ui->sbRed->setValue(rgbColor.r);
+        ui->inRed->setValue(rgbColor.r);
+        ui->sbGreen->setValue(rgbColor.g);
+        ui->inGreen->setValue(rgbColor.g);
+        ui->sbBlue->setValue(rgbColor.b);
+        ui->inBlue->setValue(rgbColor.b);
+    }
+    if (rgbChanged == 1)
+    {
+        hsiColor = rgb2hsi(rgbColor.r, rgbColor.g, rgbColor.b);
+        hue = hsiColor.h;
+        intensity = hsiColor.i;
+        saturation = hsiColor.s;
+
+        ui->sbHue->setValue(int(hue));
+        ui->inHue->setValue(int(hue));
+        ui->sbSaturation->setValue(int(100*saturation));
+        ui->inSaturation->setValue(double(saturation));
+        ui->sbIntensity->setValue(int(100*intensity));
+        ui->inIntensity->setValue(double(intensity));
+    }
+
+    SetRgbColor(handle, uchar(rgbColor.r), uchar(rgbColor.g), uchar(rgbColor.b));
+    cout << "hue: " << hue << ", saturation: " << saturation << ", intensity: " << intensity << endl;
+    cout << "red: " << rgbColor.r << ", green: " << rgbColor.g << ", blue: " << rgbColor.b << endl;
+}
+
+
+void Dancepad::on_pbSweepHue_clicked()
+{
+    // start hue changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 0;
+        state = 0;
+        ui->pbSweepHue->setText("Sweep");
+
+        ui->pbSweepSaturation->setEnabled(true);
+        ui->pbSweepIntensity->setEnabled(true);
+        ui->inRed->setEnabled(true);
+        ui->pbSweepRed->setEnabled(true);
+        ui->inGreen->setEnabled(true);
+        ui->pbSweepGreen->setEnabled(true);
+        ui->inBlue->setEnabled(true);
+        ui->pbSweepBlue->setEnabled(true);
+    }
+    // stop hue changing, if it is started
+    else
+    {
+        state = 1;
+        colorState = 0;
+        ui->pbSweepHue->setText("Stop");
+
+        ui->pbSweepSaturation->setEnabled(false);
+        ui->pbSweepIntensity->setEnabled(false);
+        ui->inRed->setEnabled(false);
+        ui->pbSweepRed->setEnabled(false);
+        ui->inGreen->setEnabled(false);
+        ui->pbSweepGreen->setEnabled(false);
+        ui->inBlue->setEnabled(false);
+        ui->pbSweepBlue->setEnabled(false);
+    }
+}
+
+void Dancepad::on_pbSweepSaturation_clicked()
+{
+    // start saturation changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 0;
+        state = 0;
+        ui->pbSweepSaturation->setText("Sweep");
+
+        ui->pbSweepHue->setEnabled(true);
+        ui->pbSweepIntensity->setEnabled(true);
+        ui->inRed->setEnabled(true);
+        ui->pbSweepRed->setEnabled(true);
+        ui->inGreen->setEnabled(true);
+        ui->pbSweepGreen->setEnabled(true);
+        ui->inBlue->setEnabled(true);
+        ui->pbSweepBlue->setEnabled(true);
+    }
+    // stop saturation changing, if it is started
+    else
+    {
+        state = 1;
+        colorState = 1;
+        ui->pbSweepSaturation->setText("Stop");
+
+        ui->pbSweepHue->setEnabled(false);
+        ui->pbSweepIntensity->setEnabled(false);
+        ui->inRed->setEnabled(false);
+        ui->pbSweepRed->setEnabled(false);
+        ui->inGreen->setEnabled(false);
+        ui->pbSweepGreen->setEnabled(false);
+        ui->inBlue->setEnabled(false);
+        ui->pbSweepBlue->setEnabled(false);
+    }
+}
+
+void Dancepad::on_pbSweepIntensity_clicked()
+{
+    // start intensity changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 0;
+        state = 0;
+        ui->pbSweepIntensity->setText("Sweep");
+
+        ui->pbSweepHue->setEnabled(true);
+        ui->pbSweepSaturation->setEnabled(true);
+        ui->inRed->setEnabled(true);
+        ui->pbSweepRed->setEnabled(true);
+        ui->inGreen->setEnabled(true);
+        ui->pbSweepGreen->setEnabled(true);
+        ui->inBlue->setEnabled(true);
+        ui->pbSweepBlue->setEnabled(true);
+    }
+    // stop intensity changing, if it is started
+    else
+    {
+        state = 1;
+        colorState = 2;
+        ui->pbSweepIntensity->setText("Stop");
+
+        ui->pbSweepHue->setEnabled(false);
+        ui->pbSweepSaturation->setEnabled(false);
+        ui->inRed->setEnabled(false);
+        ui->pbSweepRed->setEnabled(false);
+        ui->inGreen->setEnabled(false);
+        ui->pbSweepGreen->setEnabled(false);
+        ui->inBlue->setEnabled(false);
+        ui->pbSweepBlue->setEnabled(false);
+    }
+}
+
+void Dancepad::on_pbSweepRed_clicked()
+{
+    // start red changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 1;
+        state = 0;
+        ui->pbSweepRed->setText("Sweep");
+
+        ui->inHue->setEnabled(true);
+        ui->pbSweepHue->setEnabled(true);
+        ui->inSaturation->setEnabled(true);
+        ui->pbSweepSaturation->setEnabled(true);
+        ui->inIntensity->setEnabled(true);
+        ui->pbSweepIntensity->setEnabled(true);
+        ui->pbSweepGreen->setEnabled(true);
+        ui->pbSweepBlue->setEnabled(true);
+    }
+    // stop red changing, if it is started
+    else
+    {
+        rgbChanged = 0;
+        state = 1;
+        colorState = 3;
+        ui->pbSweepRed->setText("Stop");
+
+        ui->inHue->setEnabled(false);
+        ui->pbSweepHue->setEnabled(false);
+        ui->inSaturation->setEnabled(false);
+        ui->pbSweepSaturation->setEnabled(false);
+        ui->inIntensity->setEnabled(false);
+        ui->pbSweepIntensity->setEnabled(false);
+        ui->pbSweepGreen->setEnabled(false);
+        ui->pbSweepBlue->setEnabled(false);
+    }
+}
+
+void Dancepad::on_pbSweepGreen_clicked()
+{
+    // start green changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 1;
+        state = 0;
+        ui->pbSweepGreen->setText("Sweep");
+
+        ui->inHue->setEnabled(true);
+        ui->pbSweepHue->setEnabled(true);
+        ui->inSaturation->setEnabled(true);
+        ui->pbSweepSaturation->setEnabled(true);
+        ui->inIntensity->setEnabled(true);
+        ui->pbSweepIntensity->setEnabled(true);
+        ui->pbSweepRed->setEnabled(true);
+        ui->pbSweepBlue->setEnabled(true);
+    }
+    // stop green changing, if it is started
+    else
+    {
+        rgbChanged = 0;
+        state = 1;
+        colorState = 4;
+        ui->pbSweepGreen->setText("Stop");
+
+        ui->inHue->setEnabled(false);
+        ui->pbSweepHue->setEnabled(false);
+        ui->inSaturation->setEnabled(false);
+        ui->pbSweepSaturation->setEnabled(false);
+        ui->inIntensity->setEnabled(false);
+        ui->pbSweepIntensity->setEnabled(false);
+        ui->pbSweepRed->setEnabled(false);
+        ui->pbSweepBlue->setEnabled(false);
+    }
+}
+
+void Dancepad::on_pbSweepBlue_clicked()
+{
+    // start blue changing, if it is stopped
+    if(state == 1)
+    {
+        rgbChanged = 1;
+        state = 0;
+        ui->pbSweepBlue->setText("Sweep");
+
+        ui->inHue->setEnabled(true);
+        ui->pbSweepHue->setEnabled(true);
+        ui->inSaturation->setEnabled(true);
+        ui->pbSweepSaturation->setEnabled(true);
+        ui->inIntensity->setEnabled(true);
+        ui->pbSweepIntensity->setEnabled(true);
+        ui->pbSweepRed->setEnabled(true);
+        ui->pbSweepGreen->setEnabled(true);
+    }
+    // stop blue changing, if it is started
+    else
+    {
+        rgbChanged = 0;
+        state = 1;
+        colorState = 5;
+        ui->pbSweepBlue->setText("Stop");
+
+        ui->inHue->setEnabled(false);
+        ui->pbSweepHue->setEnabled(false);
+        ui->inSaturation->setEnabled(false);
+        ui->pbSweepSaturation->setEnabled(false);
+        ui->inIntensity->setEnabled(false);
+        ui->pbSweepIntensity->setEnabled(false);
+        ui->pbSweepRed->setEnabled(false);
+        ui->pbSweepGreen->setEnabled(false);
+    }
+}
+
+void Dancepad::on_inHue_editingFinished()
+{
+    hue = float(ui->inHue->value());
+    rgbChanged = 0;
+    ui->sbHue->setValue(int(hue));
+    updateColor();
+}
+
+void Dancepad::on_sbHue_actionTriggered(int action)
+{
+    hue = float(ui->sbHue->value());
+    rgbChanged = 0;
+    ui->inHue->setValue(int(hue));
+    updateColor();
+}
+
+void Dancepad::on_inSaturation_editingFinished()
+{
+    saturation = float(ui->inSaturation->value());
+    rgbChanged = 0;
+    ui->sbSaturation->setValue(int(100*saturation));
+    updateColor();
+}
+
+void Dancepad::on_sbSaturation_actionTriggered(int action)
+{
+    saturation = float(ui->sbSaturation->value())/100;
+    rgbChanged = 0;
+    ui->inSaturation->setValue(double(saturation));
+    updateColor();
+}
+
+void Dancepad::on_inIntensity_editingFinished()
+{
+    intensity = float(ui->inIntensity->value());
+    rgbChanged = 0;
+    ui->sbIntensity->setValue(int(100*intensity));
+    updateColor();
+}
+
+void Dancepad::on_sbIntensity_actionTriggered(int action)
+{
+    intensity = float(ui->sbIntensity->value())/100;
+    rgbChanged = 0;
+    updateColor();
+    ui->inIntensity->setValue(double(intensity));
+}
+
+void Dancepad::on_inRed_editingFinished()
+{
+    rgbColor.r = ui->inRed->value();
+    rgbChanged = 1;
+    ui->sbRed->setValue(rgbColor.r);
+    updateColor();
+}
+
+void Dancepad::on_sbRed_actionTriggered(int action)
+{
+    rgbColor.r = ui->sbRed->value();
+    rgbChanged = 1;
+    ui->inRed->setValue(rgbColor.r);
+    updateColor();
+}
+
+void Dancepad::on_inGreen_editingFinished()
+{
+    rgbColor.g = ui->inGreen->value();
+    rgbChanged = 1;
+    ui->sbGreen->setValue(rgbColor.g);
+    updateColor();
+}
+
+void Dancepad::on_sbGreen_actionTriggered(int action)
+{
+    rgbColor.g = ui->sbGreen->value();
+    rgbChanged = 1;
+    ui->inGreen->setValue(rgbColor.g);
+    updateColor();
+}
+
+void Dancepad::on_inBlue_editingFinished()
+{
+    rgbColor.b = ui->inBlue->value();
+    rgbChanged = 1;
+    ui->sbBlue->setValue(rgbColor.b);
+    updateColor();
+}
+
+void Dancepad::on_sbBlue_actionTriggered(int action)
+{
+    rgbColor.b = ui->sbBlue->value();
+    rgbChanged = 1;
+    ui->inBlue->setValue(rgbColor.b);
+    updateColor();
 }

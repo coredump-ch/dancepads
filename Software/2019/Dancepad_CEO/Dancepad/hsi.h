@@ -31,6 +31,11 @@ struct RGB {
 	int b;
 };
 
+struct HSI {
+    float h;
+    float s;
+    float i;
+};
 
 /**
  * Function example takes H, S and I. It will return a RGB struct
@@ -45,3 +50,5 @@ struct RGB {
  * Source: http://blog.saikoled.com/post/43693602826/why-every-led-light-should-be-using-hsi
  */
 RGB hsi2rgb(float H, float S, float I);
+
+HSI rgb2hsi(int R, int G, int B);
