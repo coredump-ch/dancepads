@@ -9,8 +9,8 @@
 
 void init_piezo()
 {    
-    //Set to internal clock and 8 TAD
-    ADCON2 = 0xA7;
+    //Set to internal clock and 0 TAD
+      ADCON2 = 0x87;
     
     //Set reference voltage to supply voltage
     ADCON1 = 0x00;
@@ -35,11 +35,15 @@ void init_piezo()
 unsigned int adc_convert(unsigned char ch)
 {
     //Check invalid Channel
-    if(ch>4) return 0;
+    if(ch>4) 
+    {
+        return 0;
+    }
     
     //Select ADC Channel
     ADCON0=0x00;
-    ADCON0=(unsigned int)(ch<<2);
+//    ADCON0=(unsigned int)(ch<<2);
+    ADCON0=(ch<<2);
     
     //Set ADC on
     ADCON0bits.ADON = 1;
@@ -53,7 +57,7 @@ unsigned int adc_convert(unsigned char ch)
     //Set ADC off
     ADCON0bits.ADON = 0;
 
-    if(ADRES<7) return 0;
+//    if(ADRES<7) return 0;
     
     return ADRES;
 }
