@@ -643,7 +643,7 @@ void Dancepad::on_inHue_editingFinished()
 
 void Dancepad::on_sbHue_actionTriggered(int action)
 {
-    hue = float(ui->sbHue->value());
+    hue = float(ui->sbHue->sliderPosition());
     rgbChanged = 0;
     ui->inHue->setValue(int(hue));
     updateColor();
@@ -659,7 +659,7 @@ void Dancepad::on_inSaturation_editingFinished()
 
 void Dancepad::on_sbSaturation_actionTriggered(int action)
 {
-    saturation = float(ui->sbSaturation->value())/100;
+    saturation = float(ui->sbSaturation->sliderPosition())/100;
     rgbChanged = 0;
     ui->inSaturation->setValue(double(saturation));
     updateColor();
@@ -675,7 +675,7 @@ void Dancepad::on_inIntensity_editingFinished()
 
 void Dancepad::on_sbIntensity_actionTriggered(int action)
 {
-    intensity = float(ui->sbIntensity->value())/100;
+    intensity = float(ui->sbIntensity->sliderPosition())/100;
     rgbChanged = 0;
     updateColor();
     ui->inIntensity->setValue(double(intensity));
@@ -691,7 +691,7 @@ void Dancepad::on_inRed_editingFinished()
 
 void Dancepad::on_sbRed_actionTriggered(int action)
 {
-    rgbColor.r = ui->sbRed->value();
+    rgbColor.r = ui->sbRed->sliderPosition();
     rgbChanged = 1;
     ui->inRed->setValue(rgbColor.r);
     updateColor();
@@ -707,7 +707,7 @@ void Dancepad::on_inGreen_editingFinished()
 
 void Dancepad::on_sbGreen_actionTriggered(int action)
 {
-    rgbColor.g = ui->sbGreen->value();
+    rgbColor.g = ui->sbGreen->sliderPosition();
     rgbChanged = 1;
     ui->inGreen->setValue(rgbColor.g);
     updateColor();
@@ -723,8 +723,8 @@ void Dancepad::on_inBlue_editingFinished()
 
 void Dancepad::on_sbBlue_actionTriggered(int action)
 {
-    rgbColor.b = ui->sbBlue->value();
     rgbChanged = 1;
-    ui->inBlue->setValue(rgbColor.b);
+    rgbColor.b = ui->sbBlue->sliderPosition();
     updateColor();
+    ui->inBlue->setValue(rgbColor.b);
 }

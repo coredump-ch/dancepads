@@ -61,7 +61,7 @@ int ReadPiezo(void* handle, unsigned char* PiezoData)
 		PiezoData[i] = recData[i];
 	}
 
-	wcout << "Color Data: " << recData[0] << " " << recData[1] << " " << recData[2] << " " << recData[3] << " " << recData[4] << " " << recData[5] << " " << recData[6] << " " << recData[7] << " has following error: " << error << endl;
+    wcout << "Total: " << recData[0] << ", P1: " << recData[1] << ", P2: " << recData[2] << ", P3: " << recData[3] << ", P4: " << recData[4] << " has following error: " << error << endl;
 
 	return(error);
 }

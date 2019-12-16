@@ -309,7 +309,7 @@
               <enum>Qt::Horizontal</enum>
              </property>
              <property name="invertedControls">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -378,6 +378,9 @@
             <widget class="QScrollBar" name="sbRed">
              <property name="maximum">
               <number>255</number>
+             </property>
+             <property name="tracking">
+              <bool>false</bool>
              </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -474,6 +477,21 @@
           <layout class="QGridLayout" name="gridLayout_8">
            <item row="0" column="2">
             <widget class="QScrollBar" name="sbBlue">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="mouseTracking">
+              <bool>false</bool>
+             </property>
+             <property name="tabletTracking">
+              <bool>false</bool>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="autoFillBackground">
+              <bool>false</bool>
+             </property>
              <property name="maximum">
               <number>255</number>
              </property>
