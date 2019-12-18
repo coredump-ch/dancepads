@@ -97,7 +97,7 @@ void Dancepad::setupPlot()
     rescalePlot = 1;
     firstPlotValue = 1;
 
-    // configure value axes
+    // configure value axis
     ui->plotWidget->yAxis->setTickLabels(false);
     connect(ui->plotWidget->yAxis2, SIGNAL(rangeChanged(QCPRange)), ui->plotWidget->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
     ui->plotWidget->yAxis2->setVisible(true);
@@ -105,7 +105,7 @@ void Dancepad::setupPlot()
     ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(60);
     ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setRange(0, 6); // add some padding to have space for tags
 
-    // configure date axes
+    // configure time axis
     QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
     dateTicker->setDateTimeFormat("d. MMMM yyyy\nHH:mm:ss");
     ui->plotWidget->xAxis->setTicker(dateTicker);
