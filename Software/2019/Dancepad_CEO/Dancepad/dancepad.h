@@ -85,8 +85,10 @@ private:
     float hue = 0;
     float saturation = 1.0;
     float intensity = 0.05;
-    double plotUpperPosition = 0;
-    double plotLowerPosition = 0;
+    double plotUpperXPosition = 0;
+    double plotLowerXPosition = 0;
+    double plotUpperYPosition = 0;
+    double plotLowerYPosition = 0;
     double time;
     double timeStart;
 

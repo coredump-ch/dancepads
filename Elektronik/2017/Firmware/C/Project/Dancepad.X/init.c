@@ -55,19 +55,22 @@ unsigned char init_direction()
     //Check if dancepad is right = 140
     if (!PORTBbits.RB4 && PORTCbits.RC6 && !PORTCbits.RC7)
     {
-        return(dir_right);
+      //  return(dir_right);    // Add this line.
+       return(dir_master);      // Remove this line.
     }
     
     //Check if dancepad is staight = 160
     if (PORTBbits.RB4 && !PORTCbits.RC6 && !PORTCbits.RC7)
     {
-        return(dir_straight);
+      //  return(dir_straight); // Add this line.
+       return(dir_master);      // Remove this line.
     }
     
     //Check if dancepad is left = 180
     if (!PORTBbits.RB4 && !PORTCbits.RC6 && PORTCbits.RC7)
     {
-        return(dir_left);
+     //   return(dir_left);     // Add this line.
+       return(dir_master);      // Remove this line.
     }
     
     return(dir_error);

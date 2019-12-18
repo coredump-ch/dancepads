@@ -101,8 +101,14 @@ void Dancepad::setupPlot()
     ui->plotWidget->yAxis->setTickLabels(false);
     connect(ui->plotWidget->yAxis2, SIGNAL(rangeChanged(QCPRange)), ui->plotWidget->yAxis, SLOT(setRange(QCPRange))); // left axis only mirrors inner right axis
     ui->plotWidget->yAxis2->setVisible(true);
+    ui->plotWidget->yAxis2->setLabel("[V]");
     ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setPadding(60);
-    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setRange(0, 300); // add some padding to have space for tags
+    ui->plotWidget->axisRect()->axis(QCPAxis::atRight, 0)->setRange(0, 6); // add some padding to have space for tags
+
+    // configure date axes
+    QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
+    dateTicker->setDateTimeFormat("d. MMMM yyyy\nHH:mm:ss");
+    ui->plotWidget->xAxis->setTicker(dateTicker);
 
     // create graphs
     mGraph1 = ui->plotWidget->addGraph();
@@ -149,35 +155,43 @@ void Dancepad::plotValues(unsigned char* piezoData)
     time = ct.toMSecsSinceEpoch() / 1000.0;
 
     // calculate and add a new data point to each graph
-    mGraph1->addData(time-timeStart, piezoData[0]);
-    mGraph2->addData(time-timeStart, piezoData[1]);
-    mGraph3->addData(time-timeStart, piezoData[2]);
-    mGraph4->addData(time-timeStart, piezoData[3]);
-    mGraph5->addData(time-timeStart, piezoData[4]);
+    mGraph1->addData(time, (double(piezoData[0])/255*5));
+    mGraph2->addData(time, (double(piezoData[1])/255*5));
+    mGraph3->addData(time, (double(piezoData[2])/255*5));
+    mGraph4->addData(time, (double(piezoData[3])/255*5));
+    mGraph5->addData(time, (double(piezoData[4])/255*5));
 
 
     if(replotPlot && rescalePlot)
     {
-        ui->plotWidget->yAxis->setRange(0, 300);
+        ui->plotWidget->yAxis->setRange(0, 6);
+        ui->plotWidget->yAxis2->setRange(0, 6);
         ui->plotWidget->xAxis->rescale();
         ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, 10, Qt::AlignRight);
-        plotUpperPosition = ui->plotWidget->xAxis->range().upper;
-        plotLowerPosition = ui->plotWidget->xAxis->range().lower;
+        plotUpperXPosition = ui->plotWidget->xAxis->range().upper;
+        plotLowerXPosition = ui->plotWidget->xAxis->range().lower;
     }
     else if (replotPlot)
     {
+        plotUpperYPosition = ui->plotWidget->yAxis->range().upper;
+        plotLowerYPosition = ui->plotWidget->yAxis->range().lower;
+        ui->plotWidget->yAxis2->setRange(plotLowerYPosition, plotUpperYPosition);
         ui->plotWidget->xAxis->rescale();
-        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, (plotUpperPosition-plotLowerPosition), Qt::AlignRight);
+        ui->plotWidget->xAxis->setRange(ui->plotWidget->xAxis->range().upper, (plotUpperXPosition-plotLowerXPosition), Qt::AlignRight);
     }
     else if (rescalePlot)
     {
-        ui->plotWidget->yAxis->setRange(0, 300);
-        ui->plotWidget->xAxis->setRange((plotUpperPosition+plotLowerPosition)/2+5, 10, Qt::AlignRight);
+        ui->plotWidget->yAxis->setRange(0, 6);
+        ui->plotWidget->yAxis2->setRange(0, 6);
+        ui->plotWidget->xAxis->setRange((plotUpperXPosition+plotLowerXPosition)/2+5, 10, Qt::AlignRight);
     }
     else if (!replotPlot && !rescalePlot)
     {
-        plotUpperPosition = ui->plotWidget->xAxis->range().upper;
-        plotLowerPosition = ui->plotWidget->xAxis->range().lower;
+        plotUpperXPosition = ui->plotWidget->xAxis->range().upper;
+        plotLowerXPosition = ui->plotWidget->xAxis->range().lower;
+        plotUpperYPosition = ui->plotWidget->yAxis->range().upper;
+        plotLowerYPosition = ui->plotWidget->yAxis->range().lower;
+        ui->plotWidget->yAxis2->setRange(plotLowerYPosition, plotUpperYPosition);
     }
 
     // update the vertical axis tag positions and texts to match the rightmost data point of the graphs
