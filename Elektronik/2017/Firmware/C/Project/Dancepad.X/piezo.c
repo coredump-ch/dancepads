@@ -10,7 +10,7 @@
 void init_piezo()
 {    
     //Set to internal clock and 0 TAD
-      ADCON2 = 0x87;
+      ADCON2 = 0x07;
     
     //Set reference voltage to supply voltage
     ADCON1 = 0x00;
@@ -59,32 +59,28 @@ unsigned int adc_convert(unsigned char ch)
 
 //    if(ADRES<7) return 0;
     
-    return ADRES;
+    return ADRESH;
 }
 
 unsigned int read_piezo(unsigned int* piezoData)
 {
-    unsigned int tot, piezo0, piezo1, piezo2, piezo3;
+    unsigned int piezo1, piezo2, piezo3, piezo4;
     static unsigned int piezo_tot = 0;
     
     //Read ADC values
-    piezo0 = adc_convert(0);
-    piezo1 = adc_convert(1);
-    piezo2 = adc_convert(2);
-    piezo3 = adc_convert(3);
+    piezo1 = adc_convert(0);
+    piezo2 = adc_convert(1);
+    piezo3 = adc_convert(2);
+    piezo4 = adc_convert(3);
     
     //Integrate ADC values
-    piezo_tot = piezo_tot + piezo0 + piezo1 + piezo2 + piezo3;
-/*    if (piezo_tot > 1536)
-    {
-        piezo_tot = 0;
-    }*/
+    piezo_tot = piezo_tot + (piezo1 - piezo2 + piezo3 - piezo4)/64;
     
     piezoData[0] = piezo_tot;
-    piezoData[1] = piezo0;
-    piezoData[2] = piezo1;
-    piezoData[3] = piezo2;
-    piezoData[4] = piezo3;
+    piezoData[1] = piezo1;
+    piezoData[2] = piezo2;
+    piezoData[3] = piezo3;
+    piezoData[4] = piezo4;
     
     return(piezo_tot);
 }

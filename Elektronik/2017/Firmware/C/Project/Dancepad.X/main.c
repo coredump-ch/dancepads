@@ -55,9 +55,19 @@ void main(void) {
         
         i2cRxBufEmpty = get_i2c_data(val);
         
-        for (int i = 0; i < I2CDATASIZE; i++)
+        if (i2cRxBufEmpty == RECEIVED)
         {
-            UsbRec[i] = val[i];
+            for (int i = 0; i < I2CDATASIZE; i++)
+            {
+                UsbRec[i] = val[i];
+            }
+        }
+        else
+        {
+            for (int i = 0; i < I2CDATASIZE; i++)
+            {
+                UsbRec[i] = 0;
+            }
         }
         
         switch (UsbRec[0])
@@ -90,7 +100,7 @@ void main(void) {
             
             default: 
             {
-                touch = read_piezo(piezoValues);
+//                touch = read_piezo(piezoValues);
 
                 color = hsi_rgb(touch);
                 set_rgbled(color[0], color[1], color[2]);

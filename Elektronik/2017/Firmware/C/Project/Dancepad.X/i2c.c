@@ -109,6 +109,7 @@ int get_i2c_data(unsigned char* data)
             data[i] = i2c_receive_data[i];
         }
         receiveStatus = NOTRECEIVED;
+        return(RECEIVED);
     }
     return(receiveStatus);
 }
