@@ -85,3 +85,22 @@ int setLifeLed(void* handle, bool led)
 
     return(error);
 }
+
+
+int blinkLifeLed(void* handle)
+{
+    int error = 0;
+    unsigned char Data[USBDATASIZE] = {0};
+
+    Data[0] = LIFELEDBLINK;
+
+    error = TransmitUsbData(handle, Data);
+    if (error != 0)
+    {
+        wcout << "Error setting Life LED Synchronization. Errorcode: " << error << endl;
+    }
+
+//    wcout << "Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
+
+    return(error);
+}

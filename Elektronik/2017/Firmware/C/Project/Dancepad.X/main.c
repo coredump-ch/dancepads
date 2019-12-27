@@ -84,6 +84,12 @@ void main(void) {
             }
             break;
             
+            case LIFELEDBLINK:
+            {
+                lifeLedSyncActive = 0;
+            }
+            break;
+            
             case SETRGBCOLOR:
             {
                 set_rgbled(UsbRec[1], UsbRec[2], UsbRec[3]);

@@ -60,6 +60,7 @@ void Dancepad::timerSlot()
         // disconnected state
         case DISCONNECTED:
         {
+            colorState =  SWEEPHUE;
             rgbChanged = 0;
 
             ui->pbSweepHue->setText("Sweep");
@@ -92,8 +93,6 @@ void Dancepad::timerSlot()
                 if (error != 0)
                 {
                     cout << "USB connection lost" << endl;
-
-                    colorState = SWEEPHUE;
                     state = DISCONNECTED;
                 }
 
@@ -130,8 +129,6 @@ void Dancepad::timerSlot()
             if (error != 0)
             {
                 cout << "USB connection lost" << endl;
-
-                colorState = SWEEPHUE;
                 state = DISCONNECTED;
             }
         }
@@ -487,8 +484,6 @@ void Dancepad::updateColor()
     if (error != 0)
     {
         cout << "USB connection lost" << endl;
-
-        colorState = SWEEPHUE;
         state = DISCONNECTED;
     }
 
@@ -863,5 +858,22 @@ void Dancepad::on_pbUsbConn_clicked()
 
 void Dancepad::on_pbLifeLed_clicked()
 {
-    state = LIFELEDSYNCH;
+    if (state == LIFELEDSYNCH)
+    {
+        ui->pbLifeLed->setText("Synchronize");
+        state = FREERUN;
+
+        error = blinkLifeLed(handle);
+
+        if (error != 0)
+        {
+            cout << "USB connection lost" << endl;
+            state = DISCONNECTED;
+        }
+    }
+    else
+    {
+        state = LIFELEDSYNCH;
+        ui->pbLifeLed->setText("Unsynchronize");
+    }
 }

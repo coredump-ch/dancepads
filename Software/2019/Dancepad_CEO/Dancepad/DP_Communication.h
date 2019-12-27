@@ -13,9 +13,10 @@
 // communication bits
 #define BEYOURSELF 1
 #define LIFELEDSYNCH 2
-#define SCANTOPOLOGY 3
-#define SETRGBCOLOR 4
-#define READPIEZO 5
+#define LIFELEDBLINK 3
+#define SCANTOPOLOGY 4
+#define SETRGBCOLOR 5
+#define READPIEZO 6
 
 // set RGB Color
 int SetRgbColor(void* handle, unsigned char red, unsigned char green, unsigned char blue);
@@ -25,5 +26,8 @@ int ReadPiezo(void* handle, unsigned char* PiezoData);
 
 // set Life LED
 int setLifeLed(void* handle, bool led);
+
+// blink Life LED
+int blinkLifeLed(void* handle);
 
 #endif

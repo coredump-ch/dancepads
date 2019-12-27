@@ -17,9 +17,10 @@
 // communication bits
 #define BEYOURSELF 1
 #define LIFELEDSYNCH 2
-#define SCANTOPOLOGY 3
-#define SETRGBCOLOR 4
-#define READPIEZO 5
+#define LIFELEDBLINK 3
+#define SCANTOPOLOGY 4
+#define SETRGBCOLOR 5
+#define READPIEZO 6
 
 #endif	/* DANCEPAD_H */
 
