@@ -69,6 +69,8 @@ void Dancepad::timerSlot()
             ui->pbSweepGreen->setText("Sweep");
             ui->pbSweepBlue->setText("Sweep");
 
+            ui->pbTrendStart->setText("Start Data Record");
+
             ui->tab_3->setEnabled(false);
             ui->tab_4->setEnabled(false);
             usbConnected = 0;
@@ -111,8 +113,16 @@ void Dancepad::timerSlot()
         // plot trend
         case PLOT:
         {
-            ReadPiezo(handle, piezoValues);
+            error = ReadPiezo(handle, piezoValues);
             plotValues(piezoValues);
+
+            if (error != 0)
+            {
+                cout << "USB connection lost" << endl;
+
+                colorState = SWEEPHUE;
+                state = DISCONNECTED;
+            }
         }
         break;
 
