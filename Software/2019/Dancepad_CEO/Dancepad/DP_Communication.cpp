@@ -31,7 +31,7 @@ int SetRgbColor(void* handle, unsigned char red, unsigned char green, unsigned c
 		wcout << "Error setting RGB Color. Errorcode: " << error << endl;
 	}
 
-//	wcout << "Color Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
+//    wcout << "Color Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
 
 	return(error);
 }
@@ -64,4 +64,24 @@ int ReadPiezo(void* handle, unsigned char* PiezoData)
     wcout << "Total: " << recData[0] << ", P1: " << recData[1] << ", P2: " << recData[2] << ", P3: " << recData[3] << ", P4: " << recData[4] << " has following error: " << error << endl;
 
 	return(error);
+}
+
+int setLifeLed(void* handle, bool led)
+{
+    int error = 0;
+    unsigned char Data[USBDATASIZE] = {0};
+
+    Data[0] = LIFELEDSYNCH;
+
+    Data[1] = led;
+
+    error = TransmitUsbData(handle, Data);
+    if (error != 0)
+    {
+        wcout << "Error setting Life LED Synchronization. Errorcode: " << error << endl;
+    }
+
+//    wcout << "Data: " << Data[0] << " " << Data[1] << " " << Data[2] << " " << Data[3] << " " << Data[4] << " " << Data[5] << " " << Data[6] << " " << Data[7] << " has following error: " << error << endl;
+
+    return(error);
 }

@@ -10,16 +10,20 @@
 #ifndef DB_COMMUNICATION_H
 #define	DB_COMMUNICATION_H
 
-// Communication bits
+// communication bits
 #define BEYOURSELF 1
-#define SCANTOPOLOGY 2
-#define SETRGBCOLOR 3
-#define READPIEZO 4
+#define LIFELEDSYNCH 2
+#define SCANTOPOLOGY 3
+#define SETRGBCOLOR 4
+#define READPIEZO 5
 
-//Set RGB Color
+// set RGB Color
 int SetRgbColor(void* handle, unsigned char red, unsigned char green, unsigned char blue);
 
-//Read Piezo Values
+// read Piezo Values
 int ReadPiezo(void* handle, unsigned char* PiezoData);
+
+// set Life LED
+int setLifeLed(void* handle, bool led);
 
 #endif

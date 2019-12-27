@@ -14,5 +14,12 @@
 #define dir_left 180
 #define dir_error 0
 
+// communication bits
+#define BEYOURSELF 1
+#define LIFELEDSYNCH 2
+#define SCANTOPOLOGY 3
+#define SETRGBCOLOR 4
+#define READPIEZO 5
+
 #endif	/* DANCEPAD_H */
 

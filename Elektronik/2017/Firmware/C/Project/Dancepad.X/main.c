@@ -31,6 +31,7 @@ void main(void) {
     unsigned char UsbTra[I2CDATASIZE] = {0};
     unsigned char val[I2CDATASIZE] = {0};
     unsigned int piezoValues[5] = {0};
+    int lifeLedSyncActive = 0;
     
     //Initialize Dancepad
     init_oscillator();
@@ -50,9 +51,7 @@ void main(void) {
     
     //Infinite loop of the programm
     while(1)
-    {   
-        blink_spiled(dir, freq);
-        
+    {        
         i2cRxBufEmpty = get_i2c_data(val);
         
         if (i2cRxBufEmpty == RECEIVED)
@@ -72,17 +71,26 @@ void main(void) {
         
         switch (UsbRec[0])
         {
-            case 0:
-            {}
+            case BEYOURSELF:
+            {
+                blink_spiled(dir, freq);
+            }
             break;
             
-            case 3:
+            case LIFELEDSYNCH:
+            {
+                set_lifeLed(UsbRec[1]);
+                lifeLedSyncActive = 1;
+            }
+            break;
+            
+            case SETRGBCOLOR:
             {
                 set_rgbled(UsbRec[1], UsbRec[2], UsbRec[3]);
             }
             break;
             
-            case 4:
+            case READPIEZO:
             {
                 UsbTra[6] = read_piezo(piezoValues);
                 
@@ -93,17 +101,16 @@ void main(void) {
                 
                 i2cTxBufEmpty = send_i2c_data(UsbTra);
             }
-            
-            case 10:
-            {}
             break;
             
             default: 
             {
-//                touch = read_piezo(piezoValues);
-
-                color = hsi_rgb(touch);
-                set_rgbled(color[0], color[1], color[2]);
+                if (lifeLedSyncActive == 0)
+                {
+                    blink_spiled(dir, freq);
+                }
+//                color = hsi_rgb(touch);
+//                set_rgbled(color[0], color[1], color[2]);
             }
             break;
         }

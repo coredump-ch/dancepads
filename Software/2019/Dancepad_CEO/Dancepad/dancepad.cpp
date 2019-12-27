@@ -86,6 +86,17 @@ void Dancepad::timerSlot()
             {
                 cout << "Life LED Status: " << lifeLED << endl;
                 lifeLED = !lifeLED;
+
+                error = setLifeLed(handle, lifeLED);
+
+                if (error != 0)
+                {
+                    cout << "USB connection lost" << endl;
+
+                    colorState = SWEEPHUE;
+                    state = DISCONNECTED;
+                }
+
                 synchCount = 0;
             }
         }

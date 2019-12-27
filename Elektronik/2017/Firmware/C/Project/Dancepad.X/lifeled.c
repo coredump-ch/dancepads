@@ -103,3 +103,9 @@ void blink_spiled(unsigned char dir, unsigned int freq)
         }*/
     }
 }
+
+
+void set_lifeLed(unsigned char led)
+{
+    PORTAbits.RA4 = led;
+}
