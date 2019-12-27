@@ -79,6 +79,13 @@ void Dancepad::timerSlot()
         // lifeled synch state
         case LIFELEDSYNCH:
         {
+            synchCount++;
+            if (synchCount >= 100)
+            {
+                cout << "Life LED Status: " << lifeLED << endl;
+                lifeLED = !lifeLED;
+                synchCount = 0;
+            }
         }
         break;
 
@@ -831,4 +838,9 @@ void Dancepad::on_pbUsbConn_clicked()
             ui->pbUsbConn->setText("Connect");
         }
     }
+}
+
+void Dancepad::on_pbLifeLed_clicked()
+{
+    state = LIFELEDSYNCH;
 }

@@ -73,6 +73,7 @@ private slots:
     void on_pbSweepGreen_clicked();
     void on_pbSweepBlue_clicked();
     void on_pbUsbConn_clicked();
+    void on_pbLifeLed_clicked();
 
 private:
     Ui::Dancepad *ui;
@@ -98,8 +99,10 @@ private:
     bool firstPlotValue;
     bool rgbChanged = 0;
     bool usbConnected = 0;
+    bool lifeLED = 0;
     unsigned int state = DISCONNECTED;
     unsigned int colorState = SWEEPHUE;
+    unsigned int synchCount = 0;
     int error = 0;
     float hue = 0;
     float saturation = 1.0;
