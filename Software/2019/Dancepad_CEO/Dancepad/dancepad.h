@@ -16,6 +16,23 @@
 
 #define executionTime 10
 
+// define states of main state machine
+#define DISCONNECTED 0
+#define LIFELEDSYNCH 1
+#define RAINBOW 2
+#define FREERUN 3
+#define COLORCHANGE 4
+#define PLOT 5
+
+
+// define states of color changing state machine
+#define SWEEPHUE 0
+#define SWEEPSATURATION 1
+#define SWEEPINTENSITY 2
+#define SWEEPRED 3
+#define SWEEPGREEN 4
+#define SWEEPBLUE 5
+
 //QT_BEGIN_NAMESPACE
 namespace Ui { class Dancepad; }
 //QT_END_NAMESPACE
@@ -36,7 +53,6 @@ private slots:
     void on_pbTrend100Percent_clicked();
     void mouseButton();
     void on_inHue_editingFinished();
-//    void on_sbHue_valueChanged(int value) ;
     void on_sbHue_actionTriggered(int action);
     void on_inSaturation_editingFinished();
     void on_sbSaturation_actionTriggered(int action);
@@ -56,6 +72,7 @@ private slots:
     void on_pbSweepRed_clicked();
     void on_pbSweepGreen_clicked();
     void on_pbSweepBlue_clicked();
+    void on_pbUsbConn_clicked();
 
 private:
     Ui::Dancepad *ui;
@@ -80,11 +97,13 @@ private:
     bool rescalePlot;
     bool firstPlotValue;
     bool rgbChanged = 0;
-    unsigned int state = 0;
-    unsigned int colorState = 0;
+    bool usbConnected = 0;
+    unsigned int state = DISCONNECTED;
+    unsigned int colorState = SWEEPHUE;
+    int error = 0;
     float hue = 0;
     float saturation = 1.0;
-    float intensity = 0.05;
+    float intensity = 0.01;
     double plotUpperXPosition = 0;
     double plotLowerXPosition = 0;
     double plotUpperYPosition = 0;

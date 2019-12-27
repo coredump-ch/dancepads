@@ -30,11 +30,6 @@ Dancepad::Dancepad(QWidget *parent) :
     // configure plot
     setupPlot();
 
-    // establish USB connection and initialize tiles
-    handle = OpenUsbComm();
-    rgbColor = hsi2rgb(hue, saturation, intensity);
-    SetRgbColor(handle, uchar(rgbColor.r), uchar(rgbColor.g), uchar(rgbColor.b));
-
     // start execution timer
     connect(&mDataTimer, SIGNAL(timeout()), this, SLOT(timerSlot()));
     mDataTimer.start(executionTime);
@@ -44,6 +39,10 @@ Dancepad::Dancepad(QWidget *parent) :
 
     // initialize color widgets
     initColor();
+
+    // initialize tabs
+    ui->tab_3->setEnabled(false);
+    ui->tab_4->setEnabled(false);
 }
 
 Dancepad::~Dancepad()
@@ -58,21 +57,52 @@ void Dancepad::timerSlot()
     // state machine
     switch(state)
     {
-        // initial state
-        case 0:
+        // disconnected state
+        case DISCONNECTED:
+        {
+            rgbChanged = 0;
+
+            ui->pbSweepHue->setText("Sweep");
+            ui->pbSweepSaturation->setText("Sweep");
+            ui->pbSweepIntensity->setText("Sweep");
+            ui->pbSweepRed->setText("Sweep");
+            ui->pbSweepGreen->setText("Sweep");
+            ui->pbSweepBlue->setText("Sweep");
+
+            ui->tab_3->setEnabled(false);
+            ui->tab_4->setEnabled(false);
+            usbConnected = 0;
+            ui->pbUsbConn->setText("Connect");
+        }
+        break;
+
+        // lifeled synch state
+        case LIFELEDSYNCH:
+        {
+        }
+        break;
+
+        // rainbow state
+        case RAINBOW:
+        {
+        }
+        break;
+
+        // free run state
+        case FREERUN:
         {
         }
         break;
 
         // color changing state
-        case 1:
+        case COLORCHANGE:
         {
             colorChangingState();
         }
         break;
 
         // plot trend
-        case 2:
+        case PLOT:
         {
             ReadPiezo(handle, piezoValues);
             plotValues(piezoValues);
@@ -226,15 +256,15 @@ void Dancepad::mouseButton()
 void Dancepad::on_pbTrendStart_clicked()
 {
     // start data recording, if it is stopped
-    if(state == 2)
+    if(state == PLOT)
     {
-        state = 0;
+        state = FREERUN;
         ui->pbTrendStart->setText("Start Data Record");
     }
     // stop data recording, if it is started
     else
     {
-        state = 2;
+        state = PLOT;
         ui->pbTrendStart->setText("Pause Data Record");
     }
 }
@@ -287,7 +317,7 @@ void Dancepad::colorChangingState()
     switch(colorState)
     {
         // sweep hue
-        case 0:
+        case SWEEPHUE:
         {
             hue = hue + 1;
             if (hue >= 361)
@@ -304,7 +334,7 @@ void Dancepad::colorChangingState()
         break;
 
         // sweep saturation
-        case 1:
+        case SWEEPSATURATION:
         {
             saturation = saturation + 0.01f;
             if (saturation >= 1.01f)
@@ -315,13 +345,13 @@ void Dancepad::colorChangingState()
             rgbChanged = 0;
             updateColor();
 
-            ui->inSaturation->setValue(int(saturation));
+            ui->inSaturation->setValue(double(saturation));
             ui->sbSaturation->setValue(int(100*saturation));
         }
         break;
 
         // sweep intensity
-        case 2:
+        case SWEEPINTENSITY:
         {
             intensity = intensity +  0.01f;
             if (intensity >= 1.01f)
@@ -332,13 +362,13 @@ void Dancepad::colorChangingState()
             rgbChanged = 0;
             updateColor();
 
-            ui->inIntensity->setValue(int(intensity));
+            ui->inIntensity->setValue(double(intensity));
             ui->sbIntensity->setValue(int(100*intensity));
         }
         break;
 
         // sweep red
-        case 3:
+        case SWEEPRED:
         {
             rgbColor.r = rgbColor.r +  1;
             if (rgbColor.r >= 256)
@@ -355,7 +385,7 @@ void Dancepad::colorChangingState()
         break;
 
         // sweep green
-        case 4:
+        case SWEEPGREEN:
         {
             rgbColor.g = rgbColor.g +  1;
             if (rgbColor.g >= 256)
@@ -372,7 +402,7 @@ void Dancepad::colorChangingState()
         break;
 
         // sweep blue
-        case 5:
+        case SWEEPBLUE:
         {
             rgbColor.b = rgbColor.b +  1;
             if (rgbColor.b >= 256)
@@ -422,19 +452,28 @@ void Dancepad::updateColor()
         ui->inIntensity->setValue(double(intensity));
     }
 
-    SetRgbColor(handle, uchar(rgbColor.r), uchar(rgbColor.g), uchar(rgbColor.b));
     cout << "hue: " << hue << ", saturation: " << saturation << ", intensity: " << intensity << endl;
     cout << "red: " << rgbColor.r << ", green: " << rgbColor.g << ", blue: " << rgbColor.b << endl;
+    error = SetRgbColor(handle, uchar(rgbColor.r), uchar(rgbColor.g), uchar(rgbColor.b));
+
+    if (error != 0)
+    {
+        cout << "USB connection lost" << endl;
+
+        colorState = SWEEPHUE;
+        state = DISCONNECTED;
+    }
+
 }
 
 
 void Dancepad::on_pbSweepHue_clicked()
 {
     // start hue changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 0;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepHue->setText("Sweep");
 
         ui->pbSweepSaturation->setEnabled(true);
@@ -449,8 +488,8 @@ void Dancepad::on_pbSweepHue_clicked()
     // stop hue changing, if it is started
     else
     {
-        state = 1;
-        colorState = 0;
+        state = COLORCHANGE;
+        colorState = SWEEPHUE;
         ui->pbSweepHue->setText("Stop");
 
         ui->pbSweepSaturation->setEnabled(false);
@@ -467,10 +506,10 @@ void Dancepad::on_pbSweepHue_clicked()
 void Dancepad::on_pbSweepSaturation_clicked()
 {
     // start saturation changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 0;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepSaturation->setText("Sweep");
 
         ui->pbSweepHue->setEnabled(true);
@@ -485,8 +524,8 @@ void Dancepad::on_pbSweepSaturation_clicked()
     // stop saturation changing, if it is started
     else
     {
-        state = 1;
-        colorState = 1;
+        state = COLORCHANGE;
+        colorState = SWEEPSATURATION;
         ui->pbSweepSaturation->setText("Stop");
 
         ui->pbSweepHue->setEnabled(false);
@@ -503,10 +542,10 @@ void Dancepad::on_pbSweepSaturation_clicked()
 void Dancepad::on_pbSweepIntensity_clicked()
 {
     // start intensity changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 0;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepIntensity->setText("Sweep");
 
         ui->pbSweepHue->setEnabled(true);
@@ -521,8 +560,8 @@ void Dancepad::on_pbSweepIntensity_clicked()
     // stop intensity changing, if it is started
     else
     {
-        state = 1;
-        colorState = 2;
+        state = COLORCHANGE;
+        colorState = SWEEPINTENSITY;
         ui->pbSweepIntensity->setText("Stop");
 
         ui->pbSweepHue->setEnabled(false);
@@ -539,10 +578,10 @@ void Dancepad::on_pbSweepIntensity_clicked()
 void Dancepad::on_pbSweepRed_clicked()
 {
     // start red changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 1;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepRed->setText("Sweep");
 
         ui->inHue->setEnabled(true);
@@ -558,8 +597,8 @@ void Dancepad::on_pbSweepRed_clicked()
     else
     {
         rgbChanged = 0;
-        state = 1;
-        colorState = 3;
+        state = COLORCHANGE;
+        colorState = SWEEPRED;
         ui->pbSweepRed->setText("Stop");
 
         ui->inHue->setEnabled(false);
@@ -576,10 +615,10 @@ void Dancepad::on_pbSweepRed_clicked()
 void Dancepad::on_pbSweepGreen_clicked()
 {
     // start green changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 1;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepGreen->setText("Sweep");
 
         ui->inHue->setEnabled(true);
@@ -595,8 +634,8 @@ void Dancepad::on_pbSweepGreen_clicked()
     else
     {
         rgbChanged = 0;
-        state = 1;
-        colorState = 4;
+        state = COLORCHANGE;
+        colorState = SWEEPGREEN;
         ui->pbSweepGreen->setText("Stop");
 
         ui->inHue->setEnabled(false);
@@ -613,10 +652,10 @@ void Dancepad::on_pbSweepGreen_clicked()
 void Dancepad::on_pbSweepBlue_clicked()
 {
     // start blue changing, if it is stopped
-    if(state == 1)
+    if(state == COLORCHANGE)
     {
         rgbChanged = 1;
-        state = 0;
+        state = FREERUN;
         ui->pbSweepBlue->setText("Sweep");
 
         ui->inHue->setEnabled(true);
@@ -632,8 +671,8 @@ void Dancepad::on_pbSweepBlue_clicked()
     else
     {
         rgbChanged = 0;
-        state = 1;
-        colorState = 5;
+        state = COLORCHANGE;
+        colorState = SWEEPBLUE;
         ui->pbSweepBlue->setText("Stop");
 
         ui->inHue->setEnabled(false);
@@ -741,4 +780,55 @@ void Dancepad::on_sbBlue_actionTriggered(int action)
     rgbColor.b = ui->sbBlue->sliderPosition();
     updateColor();
     ui->inBlue->setValue(rgbColor.b);
+}
+
+//****************************************************************************************
+// Commissioning page:
+//****************************************************************************************
+
+void Dancepad::on_pbUsbConn_clicked()
+{
+    if (usbConnected)
+    {
+        error = CloseUsbComm(handle);
+        if (error == 0)
+        {
+            ui->tab_3->setEnabled(false);
+            ui->tab_4->setEnabled(false);
+            usbConnected = 0;
+            ui->pbUsbConn->setText("Connect");
+        }
+        else
+        {
+            ui->tab_3->setEnabled(false);
+            ui->tab_4->setEnabled(false);
+            usbConnected = 1;
+            ui->pbUsbConn->setText("Disconnect");
+        }
+    }
+    else
+    {
+    // establish USB connection and initialize tiles
+        handle = OpenUsbComm();
+        cout << handle << endl;
+        if (handle)
+        {
+            cout << "Connection established" << endl;
+
+            updateColor();
+
+            ui->tab_3->setEnabled(true);
+            ui->tab_4->setEnabled(true);
+            usbConnected = 1;
+            ui->pbUsbConn->setText("Disconnect");
+
+            state = FREERUN;
+        }
+        else
+        {
+            cout << "Not connected" << endl;
+            usbConnected = 0;
+            ui->pbUsbConn->setText("Connect");
+        }
+    }
 }

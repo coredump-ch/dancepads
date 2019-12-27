@@ -33,44 +33,46 @@ void* InitUsbComm(wchar_t NomProdDescrip[30])
 	{
 		cout << "No MCP2221 devices connected" << endl;
 	}
+    else
+    {
+        for (unsigned int i = 0; i <= (NumOfDev - 1); i++)
+        {
+            //Open first MCP2221 device discovered by index
+            conn = Mcp2221_OpenByIndex(VID, PID, i);
+            error = Mcp2221_GetLastError();
+            if (error != NULL)
+            {
+                cout << "Error message is " << error << endl;
+            }
 
-	for (unsigned int i = 0; i <= (NumOfDev - 1); i++)
-	{
-		//Open first MCP2221 device discovered by index
-		conn = Mcp2221_OpenByIndex(VID, PID, i);
-		error = Mcp2221_GetLastError();
-		if (error != NULL)
-		{
-			cout << "Error message is " << error << endl;
-		}
+            //Get product descriptor
+            flag = Mcp2221_GetProductDescriptor(conn, ActProdDescrip);
+            if (flag != 0)
+            {
+                cout << "Error getting product descriptor: " << flag << endl;
+            }
 
-		//Get product descriptor
-		flag = Mcp2221_GetProductDescriptor(conn, ActProdDescrip);
-		if (flag != 0)
-		{
-			cout << "Error getting product descriptor: " << flag << endl;
-		}
-
-		//Check if correct handle is opened
-		if (0 == wcscmp(ActProdDescrip, NomProdDescrip))
-		{
-			cout << "USB Connection established." << endl;
-			return(conn);
-		}
-		else
-		{
-			//Close communication
-			flag = Mcp2221_Close(conn);
-			if (flag == 0)
-			{
-				cout << "Connection closing of unused Devises successful" << endl;
-			}
-			else
-			{
-				cout << "Error message is " << flag << endl;
-			}
-		}
-	}
+            //Check if correct handle is opened
+            if (0 == wcscmp(ActProdDescrip, NomProdDescrip))
+            {
+                cout << "USB Connection established." << endl;
+                return(conn);
+            }
+            else
+            {
+                //Close communication
+                flag = Mcp2221_Close(conn);
+                if (flag == 0)
+                {
+                    cout << "Connection closing of unused Devises successful" << endl;
+                }
+                else
+                {
+                    cout << "Error message is " << flag << endl;
+                }
+            }
+        }
+    }
 	return(conn);
 }
 
