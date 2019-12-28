@@ -24,3 +24,8 @@
 
 #endif	/* DANCEPAD_H */
 
+// programm for master dancepad
+void master_dancepad(unsigned char direction);
+
+// programm for slave dancepad
+void slave_dancepad(unsigned char direction);

@@ -19,15 +19,25 @@ void init_lifeled()
 
 }
 
-void blink_lifeled()
+void blink_lifeled(unsigned char dir)
 {
     static int i;
+    static int j;
+    
     //Blink LED after each second
     i++;
-    if (i == 1000)
+    if (i == 20000)
     {
-        PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
         i = 0;
+        j++;
+        if ((j <= 2 && dir == dir_right) || (j <= 4 && dir == dir_straight) || (j <= 6 && dir == dir_left) || (j <= 8 && dir == dir_master) || (j <= 10 && dir == dir_error))
+        {
+            PORTAbits.RA4 = (unsigned int) ~PORTAbits.RA4;
+        }
+        if (j >= 10)
+        {
+            j = 0;
+        }
     }
 }
 /*

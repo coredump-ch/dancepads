@@ -12,7 +12,7 @@
 void init_lifeled();
 
 // blink life LED subroutine
-void blink_lifeled();
+void blink_lifeled(unsigned char dir);
 /*
 // blink life LED interrupt
 void high_priority interrupt interrupt_lifeled();
