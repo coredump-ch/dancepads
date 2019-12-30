@@ -98,8 +98,8 @@ void __interrupt () rec_i2c(unsigned char data)
         }
     }
 }
-        
  
+
 int get_i2c_data(unsigned char* data)
 {    
     if (receiveStatus == RECEIVED)

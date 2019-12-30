@@ -55,12 +55,10 @@ void master_dancepad(unsigned char direction)
     unsigned char val[I2CDATASIZE] = {0};
     unsigned int piezoValues[5] = {0};
     int lifeLedSyncActive = 0;
-    unsigned int touch = 0, freq = 5000;
-    int* color = 0;
     
     //Infinite loop of the programm
     while(1)
-    {        
+    {
         i2cRxBufEmpty = get_i2c_data(val);
         
         if (i2cRxBufEmpty == RECEIVED)
@@ -139,37 +137,34 @@ void master_dancepad(unsigned char direction)
 //******************************************************************************
 void slave_dancepad(unsigned char direction)
 {
-    int i2cTxBufEmpty = TRANSMITTED;
-    int i2cRxBufEmpty = NOTRECEIVED;
-    unsigned char UsbRec[I2CDATASIZE] = {0};
-    unsigned char UsbTra[I2CDATASIZE] = {0};
-    unsigned char val[I2CDATASIZE] = {0};
-    unsigned int piezoValues[5] = {0};
+    int spiRxBufEmpty = NOTRECEIVED;
+    unsigned char spiData[SPIDATASIZE] = {0};
+    unsigned char val[SPIDATASIZE] = {0};
+    unsigned char spiRec[SPIDATASIZE] = {0};
     int lifeLedSyncActive = 0;
-    unsigned int touch = 0, freq = 5000;
-    int* color = 0;
     
     //Infinite loop of the programm
     while(1)
-    {        
-        i2cRxBufEmpty = get_i2c_data(val);
+    {
+        spiRxBufEmpty = get_spi_data(val);
         
-        if (i2cRxBufEmpty == RECEIVED)
+        if (spiRxBufEmpty == RECEIVED)
         {
-            for (int i = 0; i < I2CDATASIZE; i++)
+            for (int i = 0; i < SPIDATASIZE; i++)
             {
-                UsbRec[i] = val[i];
+                spiRec[i] = val[i];
+                send_spimaster(spiRec[1]);
             }
         }
         else
         {
-            for (int i = 0; i < I2CDATASIZE; i++)
+            for (int i = 0; i < SPIDATASIZE; i++)
             {
-                UsbRec[i] = 0;
+                spiRec[i] = 0;
             }
         }
         
-        switch (UsbRec[0])
+        switch (spiRec[0])
         {
             case BEYOURSELF:
             {
@@ -179,8 +174,9 @@ void slave_dancepad(unsigned char direction)
             
             case LIFELEDSYNCH:
             {
-                set_lifeLed(UsbRec[1]);
+                set_lifeLed(spiRec[1]);
                 lifeLedSyncActive = 1;
+                send_spimaster(spiRec[1]);
             }
             break;
             
@@ -192,20 +188,20 @@ void slave_dancepad(unsigned char direction)
             
             case SETRGBCOLOR:
             {
-                set_rgbled(UsbRec[1], UsbRec[2], UsbRec[3]);
+                set_rgbled(spiRec[1], spiRec[2], spiRec[3]);
             }
             break;
             
             case READPIEZO:
             {
-                UsbTra[6] = read_piezo(piezoValues);
+//                UsbTra[6] = read_piezo(piezoValues);
                 
                 for (int j = 0; j < 5; j++)
                 {
-                    UsbTra[j] = piezoValues[j];
+//                    UsbTra[j] = piezoValues[j];
                 }
                 
-                i2cTxBufEmpty = send_i2c_data(UsbTra);
+//                i2cTxBufEmpty = send_i2c_data(UsbTra);
             }
             break;
             

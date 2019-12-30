@@ -15,6 +15,7 @@
 #define dir_error 0
 
 // communication bits
+#define NOSTATE 0
 #define BEYOURSELF 1
 #define LIFELEDSYNCH 2
 #define LIFELEDBLINK 3

@@ -30,17 +30,5 @@ int get_i2c_data(unsigned char* data);
 //Send data to I2C (USB) subroutine
 int send_i2c_data(unsigned char* data);
 
-/*
-* For PIC18 devices the high interrupt vector is found at
-* 00000008h. The following code will branch to the
-* high_interrupt_service_routine function to handle
-* interrupts that occur at the high vector.
-*/
-/*#pragma code high_vector=0x08
-void interrupt_at_high_vector(void)
-{
-_asm GOTO rec_i2c _endasm
-}*/
-
 #endif
 
