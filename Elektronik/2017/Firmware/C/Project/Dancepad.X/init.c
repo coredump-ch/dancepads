@@ -23,7 +23,7 @@ void init_oscillator()
     //Wait for PLL to stabilize
     while(PLLRDY == 0)
     {
-    }    
+    }
 }
 
 

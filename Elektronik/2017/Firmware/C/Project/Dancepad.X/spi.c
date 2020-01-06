@@ -120,7 +120,7 @@ unsigned char rec_spislave(unsigned char data)
 }
 
 
-/*void __interrupt () rec_spi(unsigned char data)
+void __interrupt () rec_spi(unsigned char data)
 {
     receiveStatus = RECEIVING; 
     
@@ -144,7 +144,7 @@ unsigned char rec_spislave(unsigned char data)
         PIR1bits.SSP1IF = 0;
     }
     receiveStatus = RECEIVED;
-}*/
+}
 
 int get_spi_data(unsigned char* data)
 {    

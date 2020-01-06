@@ -66,7 +66,7 @@ void master_dancepad(unsigned char direction)
             for (int i = 0; i < I2CDATASIZE; i++)
             {
                 UsbRec[i] = val[i];
-                send_spimaster(UsbRec[i]);
+                send_spimaster(val[i]);
             }
         }
         else
@@ -153,7 +153,7 @@ void slave_dancepad(unsigned char direction)
             for (int i = 0; i < SPIDATASIZE; i++)
             {
                 spiRec[i] = val[i];
-                send_spimaster(spiRec[1]);
+                send_spimaster(val[i]);
             }
         }
         else
@@ -176,7 +176,6 @@ void slave_dancepad(unsigned char direction)
             {
                 set_lifeLed(spiRec[1]);
                 lifeLedSyncActive = 1;
-                send_spimaster(spiRec[1]);
             }
             break;
             

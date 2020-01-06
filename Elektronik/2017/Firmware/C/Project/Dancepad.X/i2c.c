@@ -46,7 +46,7 @@ void init_i2cslave()
 }
 
 
-void __interrupt () rec_i2c(unsigned char data)
+/*void __interrupt () rec_i2c(unsigned char data)
 {
     int i = 0;
     
@@ -97,7 +97,7 @@ void __interrupt () rec_i2c(unsigned char data)
             }
         }
     }
-}
+}*/
  
 
 int get_i2c_data(unsigned char* data)
