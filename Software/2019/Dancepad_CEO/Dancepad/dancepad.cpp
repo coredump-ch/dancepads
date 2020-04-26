@@ -83,7 +83,7 @@ void Dancepad::timerSlot()
         case LIFELEDSYNCH:
         {
             synchCount++;
-            if (synchCount >= 100)
+            if (synchCount >= 30)
             {
                 cout << "Life LED Status: " << lifeLED << endl;
                 lifeLED = !lifeLED;
